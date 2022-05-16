@@ -1,7 +1,6 @@
-from cProfile import label
-from winsound import MessageBeep
 from window import Window
 from tkinter import *
+from tkinter.ttk import Combobox
 from tkinter import messagebox
 from child_window import Child_window
 from client import Client
@@ -61,20 +60,24 @@ class Company:
         Label(regis.root, text="Телефон: +380").place(relx=0.282, rely=0.45, anchor=CENTER)
         phone = Entry(regis.root)
         phone.place(relx=0.5, rely=0.45, anchor=CENTER)  # phone
-        Button(regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone)).place(relx=0.33, rely=0.55, anchor=CENTER)
+        Label(regis.root, text="Возраст").place(relx=0.315, rely=0.50, anchor=CENTER)
+        age = Spinbox(regis.root, from_=18, to=60, width=4)
+        age.place(relx=0.414, rely=0.50, anchor=CENTER)
+        Button(regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone, age)).place(relx=0.33, rely=0.58, anchor=CENTER)
         question = "Отменить регистрацию и вернуться в меню?"
         Button(
             regis.root,
             text="Вернуться в меню",
             command=lambda this_window=regis: self.close_window(this_window, question),
-        ).place(relx=0.63, rely=0.55, anchor=CENTER)
+        ).place(relx=0.63, rely=0.58, anchor=CENTER)
 
-    def get_info(self, fname=Entry, lname=Entry, email=Entry, password=Entry, repeat_password=Entry, phone=Entry):
-        if fname.get() != "" and lname.get() != "" and email.get() != "" and password.get() != "" and repeat_password.get() != "" and phone.get() != "":
+    def get_info(self, fname=Entry, lname=Entry, email=Entry, password=Entry, repeat_password=Entry, phone=Entry, age=Spinbox):
+        if fname.get() != "" and lname.get() != "" and email.get() != "" and password.get() != "" and repeat_password.get() != "" and phone.get() != "" and age.get() != "":
             # check email========================
             # TODO: Сделать проверку на повторение почты в базе
             email_str = str(email.get())
             correct_email = False
+            unValidSumbol = "-+!@#$%^&*()|\?/<>~\"\'"
             for i in range(len(email_str)):
                 if email_str[0] == "@":
                     correct_email = False
@@ -82,6 +85,9 @@ class Company:
                 else:
                     if email_str[i] == "@":
                         symbol = email_str[:i]
+                        if self.check_email(symbol, unValidSumbol) == True:
+                            messagebox.showwarning("Символы", "Могут использоваться символы (a-z), цифры (0-9) и точку.")
+                            return
                         if len(symbol) < 6:
                             print(symbol)
                             break
@@ -109,11 +115,22 @@ class Company:
             # ====================================
             # check phone
             validSymbols = "1234567890"
-            if not self.check_number(phone.get(), validSymbols):
+            if not self.check_phone(phone.get(), validSymbols):
                 messagebox.showwarning("Телефон", "Не корректный номер телефона")
                 return
             # =====================================
-            print("Всё хорошо")
+            # check age
+            str_age = age.get()
+            print("age type", type(str_age))
+            for val in str_age:
+                if not (val in validSymbols):
+                    messagebox.showerror("Ошибка", "Введены не корректные данные!")
+                    return
+            if int(str_age) < 18 or int(str_age) > 60:
+                messagebox.showwarning("Возрастные ограничения", "Наша компанию обслуживает людей возрастом от 18 до 60 лет включительно!")
+                return  
+            # =====================================
+            messagebox.showinfo("Успех", "Поздравляю вы зарегистрировались!")
         else:
             messagebox.showwarning("Данные", "Не все данные заполнены!")
 
@@ -131,8 +148,10 @@ class Company:
     def run(self):
         self.main_win_vidgets()
         self.window.run()
-
-    def check_number(self, testS=str, validSymbols=str()):
+        
+ 
+       
+    def check_phone(self, testS=str, validSymbols=str()):
         flag = True
         if len(testS) < 9:
             return False
@@ -144,6 +163,7 @@ class Company:
             return True
         else:
             return False
+        
         
     def check_email(self, testS=str, validSymbols=str()):
         flag = False
