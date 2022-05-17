@@ -212,7 +212,7 @@ class Company:
 
     def check_phone(self, testS=str, validSymbols=str()):
         flag = True
-        if len(testS) < 9:
+        if len(testS) < 9 or len(testS) > 9:
             return False
         for val in testS:
             if not (val in validSymbols):
