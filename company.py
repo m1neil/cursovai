@@ -1,5 +1,3 @@
-from timeit import repeat
-from turtle import clear
 from window import Window
 from tkinter import *
 from tkinter.ttk import Combobox
