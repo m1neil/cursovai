@@ -1,3 +1,5 @@
+from timeit import repeat
+from turtle import clear
 from window import Window
 from tkinter import *
 from tkinter.ttk import Combobox
@@ -63,6 +65,9 @@ class Company:
         Label(regis.root, text="Возраст").place(relx=0.315, rely=0.50, anchor=CENTER)
         age = Spinbox(regis.root, from_=18, to=60, width=4)
         age.place(relx=0.414, rely=0.50, anchor=CENTER)
+        Button(regis.root, text="Очистить поля", command=lambda: self.clear(first_name, last_name, email, password, repeat_password, phone, age)).place(
+            relx=0.55, rely=0.50, anchor=CENTER
+        )
         Button(regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone, age)).place(
             relx=0.33, rely=0.58, anchor=CENTER
         )
@@ -72,6 +77,16 @@ class Company:
             text="Вернуться в меню",
             command=lambda this_window=regis: self.close_window(this_window, question),
         ).place(relx=0.63, rely=0.58, anchor=CENTER)
+        
+
+    def clear(self, fname=Entry, lname=Entry, email=Entry, password=Entry, repeat_password=Entry, phone=Entry, age=Spinbox):
+        fname.delete(0, END)
+        lname.delete(0, END)
+        email.delete(0, END)
+        password.delete(0, END)
+        repeat_password.delete(0, END)
+        phone.delete(0, END)
+        age.delete(0, END)
 
     def get_info(self, fname=Entry, lname=Entry, email=Entry, password=Entry, repeat_password=Entry, phone=Entry, age=Spinbox):
         if fname.get() != "" and lname.get() != "" and email.get() != "" and password.get() != "" and repeat_password.get() != "" and phone.get() != "" and age.get() != "":
