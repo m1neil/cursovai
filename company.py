@@ -4,6 +4,8 @@ from tkinter.ttk import Combobox
 from tkinter import messagebox
 from child_window import Child_window
 from client import Client
+import sqlite3
+import hashlib
 
 
 class Company:
@@ -11,6 +13,28 @@ class Company:
         self.name = "Creditime"
         self.window = Window(self.name, 500, 500, 800, 250, "icon/creditime.ico", (True, True))
         self.clientt = Client()
+        self.database = sqlite3.connect("clients.db")
+        self.cursor = self.database.cursor()
+        # TODO: В будущем добавить баланс пользователя скорей всего это будет карта которую он сможет окрыть
+        query = """CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            first_name VARCHAR(30),
+            last_name VARCHAR(30),
+            email VARCHAR,
+            password VARCHAR,
+            phone INT,
+            age INT,
+            work_place VARCHAR,
+            work_position VARCHAR,
+            salary FLOAT NOT NULL DEFAULT 0,
+            credit FLOAT NOT NULL DEFAULT 0,
+            sum_use_credit FLOAT NOT NULL DEFAULT 0,
+            credit_days INT NOT NULL DEFAULT 0
+            )"""
+        self.database.execute(query)
+        self.database.commit()
+        self.cursor.close()
+        self.database.close()
 
     def main_win_vidgets(self):
         top_frame = Frame(self.window.root)
@@ -75,7 +99,6 @@ class Company:
             text="Вернуться в меню",
             command=lambda this_window=regis: self.close_window(this_window, question),
         ).place(relx=0.63, rely=0.58, anchor=CENTER)
-        
 
     def clear(self, fname=Entry, lname=Entry, email=Entry, password=Entry, repeat_password=Entry, phone=Entry, age=Spinbox):
         fname.delete(0, END)
@@ -145,7 +168,30 @@ class Company:
                 messagebox.showwarning("Возрастные ограничения", "Наша компанию обслуживает людей возрастом от 18 до 60 лет включительно!")
                 return
             # =====================================
-            messagebox.showinfo("Успех", "Поздравляю вы зарегистрировались!")
+
+            try:
+                self.database = sqlite3.connect("clients.db")
+                self.cursor = self.database.cursor()
+                self.database.create_function("md5", 1, self.md5sum)
+                self.cursor.execute(f"SELECT email FROM users WHERE email = '{email.get()}'")
+                if self.cursor.fetchone() is None:
+                    self.cursor.execute(f"SELECT phone FROM users WHERE phone = '{phone.get()}'")
+                    if self.cursor.fetchone() is None:
+                        values = [fname.get(), lname.get(), email.get(), password.get(), int(phone.get()), int(age.get())]
+                        self.cursor.execute("INSERT INTO users(first_name, last_name, email, password, phone, age) VALUES( ?, ?, ?, md5(?), ?, ?)", values)
+                        self.database.commit()
+                        messagebox.showinfo("Успех", "Поздравляю вы зарегистрировались!")
+                        self.clear(fname, lname, email, password, repeat_password, phone, age)
+                    else:
+                        messagebox.showerror("Предупреждение", "Такай номер телефона уже зарегистрирован!")
+                else:
+                    messagebox.showerror("Предупреждение", "Такая почта уже зарегистрированна!")
+            except sqlite3.Error as er:
+                print(er.with_traceback())
+                messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+            finally:
+                self.cursor.close()
+                self.database.close()
         else:
             messagebox.showwarning("Данные", "Не все данные заполнены!")
 
@@ -187,3 +233,6 @@ class Company:
             return True
         else:
             return False
+
+    def md5sum(self, value):
+        return hashlib.md5(value.encode()).hexdigest()
