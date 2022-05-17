@@ -63,7 +63,9 @@ class Company:
         Label(regis.root, text="Возраст").place(relx=0.315, rely=0.50, anchor=CENTER)
         age = Spinbox(regis.root, from_=18, to=60, width=4)
         age.place(relx=0.414, rely=0.50, anchor=CENTER)
-        Button(regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone, age)).place(relx=0.33, rely=0.58, anchor=CENTER)
+        Button(regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone, age)).place(
+            relx=0.33, rely=0.58, anchor=CENTER
+        )
         question = "Отменить регистрацию и вернуться в меню?"
         Button(
             regis.root,
@@ -77,7 +79,7 @@ class Company:
             # TODO: Сделать проверку на повторение почты в базе
             email_str = str(email.get())
             correct_email = False
-            unValidSumbol = "-+!@#$%^&*()|\?/<>~\"\'"
+            unValidSumbol = "-+!@#$%^&*()|\?/<>~\"'"
             for i in range(len(email_str)):
                 if email_str[0] == "@":
                     correct_email = False
@@ -93,7 +95,7 @@ class Company:
                             break
                         elif len(symbol) >= 8:
                             alphaValid = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                            alphaValid+=alphaValid.lower()
+                            alphaValid += alphaValid.lower()
                             if self.check_email(symbol, alphaValid) == False:
                                 break
                         if email_str[i + 1 :] == "gmail.com" or email_str[i + 1 :] == "mail.ru" or email_str[i + 1 :] == "yandex.ru":
@@ -128,7 +130,7 @@ class Company:
                     return
             if int(str_age) < 18 or int(str_age) > 60:
                 messagebox.showwarning("Возрастные ограничения", "Наша компанию обслуживает людей возрастом от 18 до 60 лет включительно!")
-                return  
+                return
             # =====================================
             messagebox.showinfo("Успех", "Поздравляю вы зарегистрировались!")
         else:
@@ -148,9 +150,7 @@ class Company:
     def run(self):
         self.main_win_vidgets()
         self.window.run()
-        
- 
-       
+
     def check_phone(self, testS=str, validSymbols=str()):
         flag = True
         if len(testS) < 9:
@@ -163,12 +163,11 @@ class Company:
             return True
         else:
             return False
-        
-        
+
     def check_email(self, testS=str, validSymbols=str()):
         flag = False
         for val in testS:
-            if (val in validSymbols):
+            if val in validSymbols:
                 flag = True
                 break
         if flag == True:
