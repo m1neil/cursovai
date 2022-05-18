@@ -52,18 +52,41 @@ class Company:
 
     def comeInAccount(self):
         comeInAcc = Child_window(self.window.root, "Вход в аккаунт", 500, 500, 700, 250, "icon/comeToAcc.ico")
-        comeInAcc.root.protocol("WM_DELETE_WINDOW", lambda this_window=comeInAcc: self.exit(this_window, "Выйти?"))
-
-        Label(comeInAcc.root, text=f"Войти в {self.name}", relief=RAISED, bd=3, font=("", 18), padx=10).place(relx=0.5, rely=0.15, anchor=CENTER)
-        Label(comeInAcc.root, text="Номер телефона или почта", font=("", 12), padx=10).place(relx=0.5, rely=0.25, anchor=CENTER)
-        input_phone_or_email = Entry(comeInAcc.root, width=30, font=("", 10))
-        input_phone_or_email.place(relx=0.5, rely=0.31, anchor=CENTER)
-        Label(comeInAcc.root, text="Пароль", font=("", 12), padx=10).place(relx=0.5, rely=0.37, anchor=CENTER)
-        input_password = Entry(comeInAcc.root, width=30, font=("", 10), show="*")
-        input_password.place(relx=0.5, rely=0.43, anchor=CENTER)
-        Button(comeInAcc.root, text="Войти", command=lambda: self.check_input_data(input_phone_or_email, input_password)).place(
-            relx=0.5, rely=0.5, anchor=CENTER
-        )
+        title_frame = Frame(comeInAcc.root)
+        title_frame.pack()
+        Label(title_frame, text=f"Войти в {self.name}", relief=RAISED, bd=3, font=("", 18), padx=30).pack(side=LEFT, pady=(30, 35))
+        
+        label_phone_or_email = Frame(comeInAcc.root)
+        label_phone_or_email.pack()
+        Label(label_phone_or_email, text="Введите почту или телефон", font=("", 12), padx=10).pack(side=LEFT, pady=(0, 10))
+        
+        entry_phone_or_email_frame = Frame(comeInAcc.root)
+        entry_phone_or_email_frame.pack()
+        input_phone_or_email = Entry(entry_phone_or_email_frame, width=30, font=("", 10))
+        input_phone_or_email.pack(side=LEFT, pady=(0, 10))
+        
+        label_password_frame = Frame(comeInAcc.root)
+        label_password_frame.pack()
+        Label(label_password_frame, text="Пароль", font=("", 12)).pack(side=LEFT, pady=(0, 10))
+        
+        entry_password_frame = Frame(comeInAcc.root)
+        entry_password_frame.pack()
+        input_password = Entry(entry_password_frame, width=30, font=("", 10), show="*")
+        input_password.pack(side=LEFT, pady=(0, 10))
+        
+        btn_submit_frame = Frame(comeInAcc.root)
+        btn_submit_frame.pack()
+        Button(btn_submit_frame, text="Войти", font=("", 12), width=12, command=lambda: self.check_input_data(input_phone_or_email, input_password)).pack(side=LEFT)
+        # ?Label(comeInAcc.root, text=f"Войти в {self.name}", relief=RAISED, bd=3, font=("", 18), padx=10).place(relx=0.5, rely=0.15, anchor=CENTER)
+        # ?Label(comeInAcc.root, text="Номер телефона или почта", font=("", 12), padx=10).place(relx=0.5, rely=0.25, anchor=CENTER)
+        # ?input_phone_or_email = Entry(comeInAcc.root, width=30, font=("", 10))
+        # ?input_phone_or_email.place(relx=0.5, rely=0.31, anchor=CENTER)
+        # ?Label(comeInAcc.root, text="Пароль", font=("", 12), padx=10).place(relx=0.5, rely=0.37, anchor=CENTER)
+        # ?input_password = Entry(comeInAcc.root, width=30, font=("", 10), show="*")
+        # ?input_password.place(relx=0.5, rely=0.43, anchor=CENTER)
+        # ?Button(comeInAcc.root, text="Войти", command=lambda: self.check_input_data(input_phone_or_email, input_password)).place(
+        #     ?relx=0.5, rely=0.5, anchor=CENTER
+        # ?)
         comeInAcc.focus()
 
     def check_input_data(self, input_phone_or_email=Entry, input_password=Entry):
