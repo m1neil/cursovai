@@ -22,7 +22,7 @@ class Company:
             last_name VARCHAR(30),
             email VARCHAR,
             password VARCHAR,
-            phone INT,
+            phone VARCHAR(13),
             age INT,
             work_place VARCHAR,
             work_position VARCHAR,
@@ -36,21 +36,25 @@ class Company:
         self.cursor.close()
         self.database.close()
 
-    def main_win_vidgets(self):
+    def run(self):
+        self.main_win_fidgets()
+        self.window.run()
+
+    def main_win_fidgets(self):
         top_frame = Frame(self.window.root)
         bottom_frame = Frame(self.window.root)
         top_frame.pack()
         bottom_frame.pack()
         Label(top_frame, text="Компания CREDITIME", relief=RAISED, bd=3, font=("", 18), padx=10).pack(side=LEFT, pady=(100, 20))
         font_size = 12
-        Button(bottom_frame, text="Войти в аккаунт", command="Входим в аккаунт", font=("", font_size)).pack(side=LEFT, padx=(0, 10))
+        Button(bottom_frame, text="Войти в аккаунт", command=self.comeInAccount, font=("", font_size)).pack(side=LEFT, padx=(0, 10))
         Button(bottom_frame, text="Регистарция", command=self.registration, font=("", font_size)).pack(side=LEFT)
 
-    # def menu(self):
-    # Label(self.window.root, text="Компания CREDITIME", relief=RAISED, bd=3, font=("JetBrains Mono", 16)).
-    # font_size = 12
-    # Button(self.window.root, text="Войти в аккаунт", command="Входим в аккаунт", font=("", font_size)).pack()
-    # Button(self.window.root, text="Регистарция", command=self.registration, font=("", font_size)).pack()
+    def comeInAccount(self):
+        comeInAcc = Child_window(self.window.root, "Вход в аккаунт", 500, 500, 700, 250, "icon/comeToAcc.ico")
+        comeInAcc.root.protocol("WM_DELETE_WINDOW", lambda this_window=comeInAcc: self.exit(this_window, "Выйти?"))
+        comeInAcc.focus()
+        
 
     def registration(self):
         self.window.root.withdraw()
@@ -93,11 +97,12 @@ class Company:
         Button(regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone, age)).place(
             relx=0.33, rely=0.58, anchor=CENTER
         )
+        title = "Закрыть окно регистрации"
         question = "Отменить регистрацию и вернуться в меню?"
         Button(
             regis.root,
             text="Вернуться в меню",
-            command=lambda this_window=regis: self.close_window(this_window, question),
+            command=lambda this_window=regis: self.close_window(this_window, title, question),
         ).place(relx=0.63, rely=0.58, anchor=CENTER)
 
     def clear(self, fname=Entry, lname=Entry, email=Entry, password=Entry, repeat_password=Entry, phone=Entry, age=Spinbox):
@@ -112,7 +117,6 @@ class Company:
     def get_info(self, fname=Entry, lname=Entry, email=Entry, password=Entry, repeat_password=Entry, phone=Entry, age=Spinbox):
         if fname.get() != "" and lname.get() != "" and email.get() != "" and password.get() != "" and repeat_password.get() != "" and phone.get() != "" and age.get() != "":
             # check email========================
-            # TODO: Сделать проверку на повторение почты в базе
             email_str = str(email.get())
             correct_email = False
             unValidSumbol = "-+!@#$%^&*()|\?/<>~\"'"
@@ -175,9 +179,10 @@ class Company:
                 self.database.create_function("md5", 1, self.md5sum)
                 self.cursor.execute(f"SELECT email FROM users WHERE email = '{email.get()}'")
                 if self.cursor.fetchone() is None:
-                    self.cursor.execute(f"SELECT phone FROM users WHERE phone = '{phone.get()}'")
+                    user_phone = "+380" + phone.get()
+                    self.cursor.execute(f"SELECT phone FROM users WHERE phone = '{user_phone}'")
                     if self.cursor.fetchone() is None:
-                        values = [fname.get(), lname.get(), email.get(), password.get(), int(phone.get()), int(age.get())]
+                        values = [fname.get(), lname.get(), email.get(), password.get(), "+380" + phone.get(), int(age.get())]
                         self.cursor.execute("INSERT INTO users(first_name, last_name, email, password, phone, age) VALUES( ?, ?, ?, md5(?), ?, ?)", values)
                         self.database.commit()
                         messagebox.showinfo("Успех", "Поздравляю вы зарегистрировались!")
@@ -196,19 +201,15 @@ class Company:
             messagebox.showwarning("Данные", "Не все данные заполнены!")
 
     def exit(self, this_window, question):
-        if messagebox.askokcancel("Потвердите закрытие окна", question):
+        if messagebox.askokcancel("Закрытие окна", question):
             self.window.root.deiconify()
             this_window.root.destroy()
             self.window.root.destroy()  # Потом убрать возможно!
 
-    def close_window(self, this_window, question):
-        if messagebox.askyesno("Закрыть окно регистрации", question):
+    def close_window(self, this_window, title, question):
+        if messagebox.askyesno(title, question):
             self.window.root.deiconify()
             this_window.root.destroy()
-
-    def run(self):
-        self.main_win_vidgets()
-        self.window.run()
 
     def check_phone(self, testS=str, validSymbols=str()):
         flag = True
