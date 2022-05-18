@@ -53,7 +53,7 @@ class Company:
     def comeInAccount(self):
         comeInAcc = Child_window(self.window.root, "Вход в аккаунт", 500, 500, 700, 250, "icon/comeToAcc.ico")
         comeInAcc.root.protocol("WM_DELETE_WINDOW", lambda this_window=comeInAcc: self.exit(this_window, "Выйти?"))
-        
+
         Label(comeInAcc.root, text=f"Войти в {self.name}", relief=RAISED, bd=3, font=("", 18), padx=10).place(relx=0.5, rely=0.15, anchor=CENTER)
         Label(comeInAcc.root, text="Номер телефона или почта", font=("", 12), padx=10).place(relx=0.5, rely=0.25, anchor=CENTER)
         input_phone_or_email = Entry(comeInAcc.root, width=30, font=("", 10))
@@ -61,11 +61,50 @@ class Company:
         Label(comeInAcc.root, text="Пароль", font=("", 12), padx=10).place(relx=0.5, rely=0.37, anchor=CENTER)
         input_password = Entry(comeInAcc.root, width=30, font=("", 10), show="*")
         input_password.place(relx=0.5, rely=0.43, anchor=CENTER)
+        Button(comeInAcc.root, text="Войти", command=lambda: self.check_input_data(input_phone_or_email, input_password)).place(
+            relx=0.5, rely=0.5, anchor=CENTER
+        )
         comeInAcc.focus()
-        
-        
-        
-        
+
+    def check_input_data(self, input_phone_or_email=Entry, input_password=Entry):
+        if input_phone_or_email.get() != "":
+            if input_password.get() != "":
+                try:
+                    self.database = sqlite3.connect("clients.db")
+                    self.cursor = self.database.cursor()
+                    self.database.create_function("md5", 1, self.md5sum)
+                    email = ""
+                    phone = ""
+                    if input_phone_or_email.get()[0] == "+":
+                        self.cursor.execute("SELECT phone FROM users WHERE phone = ?", [input_phone_or_email.get()])
+                        phone = input_phone_or_email.get()
+                    else:
+                        self.cursor.execute("SELECT email FROM users WHERE email = ?", [input_phone_or_email.get()])
+                        email = input_phone_or_email.get()
+                    if self.cursor.fetchone() is None:
+                        messagebox.showwarning("Логин", "Такого логина не существует")
+                    else:
+                        self.cursor.execute(
+                            "SELECT password FROM users WHERE email = ? OR phone = ? AND password = md5(?)",
+                            [email, phone, input_password.get()]
+                        )
+                        if self.cursor.fetchone() is None:
+                            messagebox.showwarning("Пароль", "Не верный пароль!")
+                        else:
+                            messagebox.showinfo("Успех", "Вы успешно вошли в свой аккаунт!")
+                            pass  # TODO: Перекидываем пользователя в его среду
+                except sqlite3.Error as er:
+                    print(er.with_traceback())
+                    messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+                finally:
+                    self.cursor.close()
+                    self.database.close()
+            else:
+                messagebox.showwarning("Пароль", "Введите пароль!")
+        else:
+            messagebox.showwarning("Предупреждение", "Введите логин!")
+
+    # TODO:========================================================================================================================
 
     def registration(self):
         self.window.root.withdraw()
@@ -102,12 +141,12 @@ class Company:
         Label(regis.root, text="Возраст").place(relx=0.315, rely=0.50, anchor=CENTER)
         age = Spinbox(regis.root, from_=18, to=60, width=4)
         age.place(relx=0.414, rely=0.50, anchor=CENTER)
-        Button(regis.root, text="Очистить поля", command=lambda: self.clear(first_name, last_name, email, password, repeat_password, phone, age)).place(
-            relx=0.55, rely=0.50, anchor=CENTER
-        )
-        Button(regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone, age)).place(
-            relx=0.33, rely=0.58, anchor=CENTER
-        )
+        Button(
+            regis.root, text="Очистить поля", command=lambda: self.clear(first_name, last_name, email, password, repeat_password, phone, age)
+        ).place(relx=0.55, rely=0.50, anchor=CENTER)
+        Button(
+            regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone, age)
+        ).place(relx=0.33, rely=0.58, anchor=CENTER)
         title = "Закрыть окно регистрации"
         question = "Отменить регистрацию и вернуться в меню?"
         Button(
@@ -126,7 +165,15 @@ class Company:
         age.delete(0, END)
 
     def get_info(self, fname=Entry, lname=Entry, email=Entry, password=Entry, repeat_password=Entry, phone=Entry, age=Spinbox):
-        if fname.get() != "" and lname.get() != "" and email.get() != "" and password.get() != "" and repeat_password.get() != "" and phone.get() != "" and age.get() != "":
+        if (
+            fname.get() != ""
+            and lname.get() != ""
+            and email.get() != ""
+            and password.get() != ""
+            and repeat_password.get() != ""
+            and phone.get() != ""
+            and age.get() != ""
+        ):
             # check email========================
             email_str = str(email.get())
             correct_email = False
@@ -194,7 +241,9 @@ class Company:
                     self.cursor.execute(f"SELECT phone FROM users WHERE phone = '{user_phone}'")
                     if self.cursor.fetchone() is None:
                         values = [fname.get(), lname.get(), email.get(), password.get(), "+380" + phone.get(), int(age.get())]
-                        self.cursor.execute("INSERT INTO users(first_name, last_name, email, password, phone, age) VALUES( ?, ?, ?, md5(?), ?, ?)", values)
+                        self.cursor.execute(
+                            "INSERT INTO users(first_name, last_name, email, password, phone, age) VALUES( ?, ?, ?, md5(?), ?, ?)", values
+                        )
                         self.database.commit()
                         messagebox.showinfo("Успех", "Поздравляю вы зарегистрировались!")
                         self.clear(fname, lname, email, password, repeat_password, phone, age)
