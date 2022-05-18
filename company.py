@@ -53,7 +53,18 @@ class Company:
     def comeInAccount(self):
         comeInAcc = Child_window(self.window.root, "Вход в аккаунт", 500, 500, 700, 250, "icon/comeToAcc.ico")
         comeInAcc.root.protocol("WM_DELETE_WINDOW", lambda this_window=comeInAcc: self.exit(this_window, "Выйти?"))
+        
+        Label(comeInAcc.root, text=f"Войти в {self.name}", relief=RAISED, bd=3, font=("", 18), padx=10).place(relx=0.5, rely=0.15, anchor=CENTER)
+        Label(comeInAcc.root, text="Номер телефона или почта", font=("", 12), padx=10).place(relx=0.5, rely=0.25, anchor=CENTER)
+        input_phone_or_email = Entry(comeInAcc.root, width=30, font=("", 10))
+        input_phone_or_email.place(relx=0.5, rely=0.31, anchor=CENTER)
+        Label(comeInAcc.root, text="Пароль", font=("", 12), padx=10).place(relx=0.5, rely=0.37, anchor=CENTER)
+        input_password = Entry(comeInAcc.root, width=30, font=("", 10), show="*")
+        input_password.place(relx=0.5, rely=0.43, anchor=CENTER)
         comeInAcc.focus()
+        
+        
+        
         
 
     def registration(self):
