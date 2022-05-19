@@ -274,7 +274,6 @@ class Company:
 
     def exit(self, this_window, question):
         if messagebox.askokcancel("Закрытие окна", question):
-            self.window.root.deiconify()
             this_window.root.destroy()
             self.window.root.destroy()  # Потом убрать возможно!
 
