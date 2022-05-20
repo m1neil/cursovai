@@ -30,6 +30,8 @@ class Client:
         return self._work_place
     def get_work_position(self):
         return self._work_position
+    def get_salary(self):
+        return self._salary
     def get_credit(self):
         return self._credit
     def get_sum_user_credit(self):
