@@ -77,11 +77,13 @@ class Company:
         btn_submit_frame = Frame(comeInAcc.root)
         btn_submit_frame.pack()
         Button(
-            btn_submit_frame, text="Войти", font=("", 12), width=12, command=lambda: self.check_input_data(input_phone_or_email, input_password)
+            btn_submit_frame, text="Войти", font=("", 12), width=12, command=lambda: self.check_input_data(input_phone_or_email, input_password, comeInAcc)
         ).pack(side=LEFT)
         comeInAcc.focus()
 
-    def check_input_data(self, input_phone_or_email=Entry, input_password=Entry):
+    def check_input_data(self, input_phone_or_email=Entry, input_password=Entry, child_window=Child_window):
+        examination = False
+        user_id = None
         if input_phone_or_email.get() != "":
             if input_password.get() != "":
                 try:
@@ -104,7 +106,8 @@ class Company:
                             messagebox.showwarning("Пароль", "Не верный пароль!")
                         else:
                             messagebox.showinfo("Успех", "Вы успешно вошли в свой аккаунт!")
-                            pass  # TODO: Перекидываем пользователя в его среду
+                            user_id = self.cursor.execute("SELECT id FROM users WHERE email = ? OR phone = ?", [email, phone]).fetchone()[0]
+                            examination = True
                 except sqlite3.Error as er:
                     print(er.with_traceback())
                     messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
@@ -115,8 +118,16 @@ class Company:
                 messagebox.showwarning("Пароль", "Введите пароль!")
         else:
             messagebox.showwarning("Предупреждение", "Введите логин!")
+            
+        if examination == True:
+            self.simple_close_window(child_window)
+            self.client_area(user_id)
+            
 
     # TODO:========================================================================================================================
+    
+    def client_area(self, user_id):
+        messagebox.showinfo("Юзер кабинет", f"Мы успешно попали в функцию и теперь можем создать новое дочерние окно! + id = {user_id}")
 
     def registration(self):
         self.window.root.withdraw()
@@ -281,6 +292,9 @@ class Company:
         if messagebox.askyesno(title, question):
             self.window.root.deiconify()
             this_window.root.destroy()
+            
+    def simple_close_window(self, this_window):
+        this_window.root.destroy()
 
     def check_phone(self, testS=str, validSymbols=str()):
         flag = True
