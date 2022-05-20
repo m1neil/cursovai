@@ -1,5 +1,3 @@
-import email
-import profile
 from window import Window
 from tkinter import *
 from tkinter.ttk import Combobox
@@ -54,7 +52,7 @@ class Company:
         Button(bottom_frame, text="Войти в аккаунт", command=self.comeInAccount, font=("", font_size)).pack(side=LEFT, padx=(0, 10))
         Button(bottom_frame, text="Регистарция", command=self.registration, font=("", font_size)).pack(side=LEFT)
         # ! Потом убрать
-        self.additional_information_window(self.window)
+        # self.additional_information_window(self.window)
 
     def comeInAccount(self):
         comeInAcc = Child_window(self.window.root, "Вход в аккаунт", 500, 500, 700, 250, "icon/comeToAcc.ico")
@@ -236,6 +234,7 @@ class Company:
             side=LEFT, padx=(0, 310), pady=(40, 0)
         )
         
+        
 
     def close_and_show_another_window(self, close, show):
         close.root.destroy()
@@ -243,7 +242,7 @@ class Company:
 
     # TODO::+=======================================================
     def additional_information_window(self, profile_window=Child_window):
-        add_info_win = Child_window(profile_window.root, "Доп. информация о клиенте", 400, 200, 800, 350)
+        add_info_win = Child_window(profile_window.root, "Доп. информация о клиенте", 400, 200, 800, 350, "icon/add_info.ico")
         main_title_frame = Frame(add_info_win.root)
         main_title_frame.pack()
         work_place_frame = Frame(add_info_win.root)
@@ -252,6 +251,8 @@ class Company:
         work_position_frame.pack()
         salary_frame = Frame(add_info_win.root)
         salary_frame.pack()
+        button_frame = Frame(add_info_win.root)
+        button_frame.pack()
         Label(main_title_frame, text="Заполните доп. данные", relief=RAISED, bd=3, font=("", 14), padx=30).pack(side=LEFT, pady=(15, 15))  # Заголовок
         Label(work_place_frame, text="Место работы:", font=("", 11)).pack(side=LEFT, padx=(0, 0))
         work_place = Entry(work_place_frame, font=("", 11))
@@ -263,7 +264,44 @@ class Company:
         Label(salary_frame, text="Зарплата:", font=("", 11)).pack(side=LEFT, padx=(10, 0))
         salary = Entry(salary_frame, font=("", 11))
         salary.pack(side=LEFT, padx=(5, 0))
+        Button(button_frame, text="Ок", command=lambda: self.check_input_user(work_place.get(), work_position.get(), salary.get(), add_info_win)).pack(side=LEFT, padx=(0, 5), pady=(15, 0))
+        Button(button_frame, text="Отмена", command=lambda: self.simple_close_window(add_info_win)).pack(side=LEFT, padx=(5, 0), pady=(15, 0))
+        
         add_info_win.focus()
+        
+    def check_input_user(self, work_place, work_position, salary, win):
+        if work_place == "" or work_position == "" or salary == "":
+            messagebox.showwarning("Предупреждение", "Не все данные введенный")
+        else:
+            if not self.is_number(salary):
+                messagebox.showwarning("Ошбика", "Не корректный тип данных")
+            elif float(salary) < 6500:
+                messagebox.showwarning("Минимальная зарпалата в Украине 6500 грн.")
+            else:
+                try:
+                    self.database = sqlite3.connect("clients.db")
+                    self.cursor = self.database.cursor()
+                    self.user.set_work_place(work_place)
+                    self.user.set_work_position(work_position)
+                    self.user.set_salary(float(salary))
+                    self.cursor.execute("UPDATE users SET work_place = ?, work_position = ?, salary = ? WHERE id = ?", [work_place, work_position, float(salary), self.user.get_id()])
+                    self.database.commit()
+                    self.simple_close_window(win)
+                except sqlite3.Error as er:
+                    print(er.with_traceback())
+                    messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+                finally:
+                    self.cursor.close()
+                    self.database.close()
+                        
+                
+    def is_number(self,str):
+        try:
+            float(str)
+            return True
+        except ValueError:
+            return False         
+            
         
     # TODO::+=======================================================
     def apply_for_credit(self, client_area_window=Child_window):
