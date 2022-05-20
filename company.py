@@ -86,7 +86,7 @@ class Company:
     # ! Не забудь отменить что внутри этой свернутой функции пжжжжжжжж я тебя умоляю
     def check_input_data(self, input_phone_or_email=Entry, input_password=Entry, child_window=Child_window):
         examination = True  #! Изменить на False
-        user_id = 1  #! Изменить на None
+        user_id = 2  #! Изменить на None
         # if input_phone_or_email.get() != "":
         #     if input_password.get() != "":
         #         try:
@@ -221,25 +221,25 @@ class Company:
         Label(age, text=f"Возраст: {self.user.get_age()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 225), pady=(0, 5))
         Label(email_frame, text=f"Email: {self.user.get_email()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 79), pady=(0, 5))
         Label(phone_frame, text=f"Номер телефона: {self.user.get_phone()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 57), pady=(0, 5))
-        Label(work_place_frame, text=f"Место работы: {self.user.get_work_place()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
-        Label(work_position_frame, text=f"Должность: {self.user.get_work_position()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
-        Label(salary_frame, text=f"Зарплата: {self.user.get_salary()} грн.", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
+        Label(work_place_frame, text=f"Место работы: {self.user.get_work_place()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 143), pady=(0, 5))
+        Label(work_position_frame, text=f"Должность: {self.user.get_work_position()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 165), pady=(0, 5))
+        Label(salary_frame, text=f"Зарплата: {self.user.get_salary()} грн.", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 143), pady=(0, 5))
         Label(credit_frame, text=f"Сумма кредита: {self.user.get_credit()} грн, Срок кредита: {self.user.get_credit_days()}", font=("", 12, "bold")).pack(
             side=LEFT, padx=(3, 7), pady=(0, 15)
         )
-        Button(input_data_frame, text="Нажми, чтобы заполнить\n дополнительные данные", font=("", 12), command=lambda: self.additional_information_window(profile)).pack(
-            side=LEFT, pady=(10, 0)
-        )
+        Button(
+            input_data_frame, text="Нажми, чтобы заполнить\n дополнительные данные", font=("", 12), command=lambda: self.additional_information_window(profile, client_area_window)
+        ).pack(side=LEFT, pady=(10, 0))
         Button(back_to_client_area_frame, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
             side=LEFT, padx=(0, 310), pady=(40, 0)
-        )      
+        )
 
     def close_and_show_another_window(self, close, show):
         close.root.destroy()
         show.root.deiconify()
 
     # TODO::+=======================================================
-    def additional_information_window(self, profile_window=Child_window):
+    def additional_information_window(self, profile_window=Child_window, client_area_window=Child_window):
         add_info_win = Child_window(profile_window.root, "Доп. информация о клиенте", 400, 200, 800, 350, "icon/add_info.ico")
         main_title_frame = Frame(add_info_win.root)
         main_title_frame.pack()
@@ -258,15 +258,17 @@ class Company:
         Label(work_position_frame, text="Должность:", font=("", 11)).pack(side=LEFT, padx=(0, 0))
         work_position = Entry(work_position_frame, font=("", 11))
         work_position.pack(side=LEFT, padx=(5, 0))
-        
+
         Label(salary_frame, text="Зарплата:", font=("", 11)).pack(side=LEFT, padx=(10, 0))
         salary = Entry(salary_frame, font=("", 11))
         salary.pack(side=LEFT, padx=(5, 0))
-        Button(button_frame, text="Ок", command=lambda: self.check_input_user(work_place.get(), work_position.get(), salary.get(), add_info_win)).pack(side=LEFT, padx=(0, 5), pady=(15, 0))
+        Button(
+            button_frame, text="Ок", command=lambda: self.check_input_user(work_place.get(), work_position.get(), salary.get(), add_info_win, profile_window, client_area_window)
+        ).pack(side=LEFT, padx=(0, 5), pady=(15, 0))
         Button(button_frame, text="Отмена", command=lambda: self.simple_close_window(add_info_win)).pack(side=LEFT, padx=(5, 0), pady=(15, 0))
         add_info_win.focus()
-        
-    def check_input_user(self, work_place, work_position, salary, win):
+
+    def check_input_user(self, work_place, work_position, salary, win=Child_window, profile_window=Child_window, client_area_window=Child_window):
         if work_place == "" or work_position == "" or salary == "":
             messagebox.showwarning("Предупреждение", "Не все данные введенный")
         else:
@@ -281,25 +283,28 @@ class Company:
                     self.user.set_work_place(work_place)
                     self.user.set_work_position(work_position)
                     self.user.set_salary(float(salary))
-                    self.cursor.execute("UPDATE users SET work_place = ?, work_position = ?, salary = ? WHERE id = ?", [work_place, work_position, float(salary), self.user.get_id()])
+                    self.cursor.execute(
+                        "UPDATE users SET work_place = ?, work_position = ?, salary = ? WHERE id = ?", [work_place, work_position, float(salary), self.user.get_id()]
+                    )
                     self.database.commit()
+                    messagebox.showinfo("Успех", "Мы успешно занесли данные.\n Сейчас вы окажетесь в личном кабенете!")
                     self.simple_close_window(win)
-                    self.update_profile = True
+                    self.simple_close_window(profile_window)
+                    client_area_window.root.deiconify()
                 except sqlite3.Error as er:
                     print(er.with_traceback())
                     messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
                 finally:
                     self.cursor.close()
                     self.database.close()
-                
-    def is_number(self,str):
+
+    def is_number(self, str):
         try:
             float(str)
             return True
         except ValueError:
-            return False         
-            
-        
+            return False
+
     # TODO::+=======================================================
     def apply_for_credit(self, client_area_window=Child_window):
         pass
