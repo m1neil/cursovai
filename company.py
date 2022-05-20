@@ -1,4 +1,5 @@
 import email
+import profile
 from window import Window
 from tkinter import *
 from tkinter.ttk import Combobox
@@ -82,10 +83,10 @@ class Company:
         Button(btn_submit_frame, text="Войти", font=("", 12), width=12, command=lambda: self.check_input_data(input_phone_or_email, input_password, comeInAcc)).pack(side=LEFT)
         comeInAcc.focus()
 
-    # ! Не забудь отменить что внутри этой свернутой функции пжжжжжжжж я тебя умоляю 
+    # ! Не забудь отменить что внутри этой свернутой функции пжжжжжжжж я тебя умоляю
     def check_input_data(self, input_phone_or_email=Entry, input_password=Entry, child_window=Child_window):
-        examination = True #! Изменить на False
-        user_id = 1 #! Изменить на None
+        examination = True  #! Изменить на False
+        user_id = 1  #! Изменить на None
         # if input_phone_or_email.get() != "":
         #     if input_password.get() != "":
         #         try:
@@ -214,7 +215,7 @@ class Company:
             input_data_frame.pack_forget()
         if self.user.get_credit() == 0:
             credit_frame.pack_forget()
-            
+
         Label(main_title_frame, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).pack(side=LEFT, pady=(50, 35))  # Заголовок
         Label(lfname_frame, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 150), pady=(0, 5))
         Label(age, text=f"Возраст: {self.user.get_age()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 225), pady=(0, 5))
@@ -223,17 +224,26 @@ class Company:
         Label(work_place_frame, text=f"Место работы: {self.user.get_work_place()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
         Label(work_position_frame, text=f"Должность: {self.user.get_work_position()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
         Label(salary_frame, text=f"Зарплата: {self.user.get_salary()} грн.", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
-        Label(credit_frame, text=f"Сумма кредита: {self.user.get_credit()} грн, Срок кредита: {self.user.get_credit_days()}", font=("", 12, "bold")).pack(side=LEFT, padx=(3, 7), pady=(0, 15))
-        Button(input_data_frame, text="Нажми, чтобы заполнить\n дополнительные данные", font=("", 12)).pack(side=LEFT)
-        Button(back_to_client_area_frame, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(side=LEFT, padx=(0, 400), pady=(20, 0))
+        Label(credit_frame, text=f"Сумма кредита: {self.user.get_credit()} грн, Срок кредита: {self.user.get_credit_days()}", font=("", 12, "bold")).pack(
+            side=LEFT, padx=(3, 7), pady=(0, 15)
+        )
+        Button(input_data_frame, text="Нажми, чтобы заполнить\n дополнительные данные", font=("", 12), command=lambda: self.additional_information_window(profile)).pack(
+            side=LEFT, pady=(10, 0)
+        )
+        Button(back_to_client_area_frame, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
+            side=LEFT, padx=(0, 310), pady=(40, 0)
+        )
         # TODO::+=======================================================
-    
+
     def close_and_show_another_window(self, close, show):
         close.root.destroy()
         show.root.deiconify()
-    
+
     def additional_information_window(self, profile_window=Child_window):
-        pass     
+        add_info_win = Child_window(profile_window.root, "Доп. информация о клиенте", 400, 200, 800, 250)
+        
+        add_info_win.focus()
+        pass
 
     def apply_for_credit(self, client_area_window=Child_window):
         pass
