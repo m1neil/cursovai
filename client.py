@@ -12,7 +12,8 @@ class Client:
         self._salary = 0.0
         self._credit = 0.0
         self._sum_use_credit = 0.0
-        self._credit_days = 0
+        self._credit_days = 0,
+        self._regular_client = 0
     
     # get
     def get_fname(self):
@@ -63,6 +64,8 @@ class Client:
         self._sum_use_credit = user_sum_use_credit
     def set_credit_days(self, user_credit_days):
         self._credit_days = user_credit_days
+    def set_regula_client(self, yes_or_no):
+        self._regular_client = yes_or_no
     
         
         

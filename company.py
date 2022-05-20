@@ -30,7 +30,8 @@ class Company:
             salary FLOAT NOT NULL DEFAULT 0,
             credit FLOAT NOT NULL DEFAULT 0,
             sum_use_credit FLOAT NOT NULL DEFAULT 0,
-            credit_days INT NOT NULL DEFAULT 0
+            credit_days INT NOT NULL DEFAULT 0,
+            regular_client INT NOT NULL DEFAULT 0
             )"""
         self.database.execute(query)
         self.database.commit()
