@@ -15,6 +15,7 @@ class Company:
         self.clientt = Client()
         self.database = sqlite3.connect("clients.db")
         self.cursor = self.database.cursor()
+        self.user = Client()
         # TODO: В будущем добавить баланс пользователя скорей всего это будет карта которую он сможет окрыть
         query = """CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -128,6 +129,30 @@ class Company:
 
     def client_area(self, user_id):
         messagebox.showinfo("Юзер кабинет", f"Мы успешно попали в функцию и теперь можем создать новое дочерние окно! + id = {user_id}")
+        try:
+            self.database = sqlite3.connect("clients.db")
+            self.cursor = self.database.cursor()
+            self.user.set_id(user_id)
+            self.user.set_fname(self.cursor.execute("SELECT first_name FROM users WHERE id = ?", [user_id]).fetchone()[0])
+            
+            # self._last_name = ""
+            # self._email = ""
+            # self._password = ""
+            # self._phone = ""
+            # self._age = 0
+            # self._work_place = ""
+            # self._work_position = ""
+            # self._salary = 0.0
+            # self._credit = 0.0
+            # self._sum_use_credit = 0.0
+            # self._credit_days = 0
+              
+        except sqlite3.Error as er:
+            print(er.with_traceback())
+            messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+        finally:
+            self.cursor.close()
+            self.database.close()
 
     # TODO:========================================================================================================================
 
