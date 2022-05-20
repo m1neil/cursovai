@@ -31,7 +31,7 @@ class Company:
             salary FLOAT NOT NULL DEFAULT 0,
             credit FLOAT NOT NULL DEFAULT 0,
             sum_use_credit FLOAT NOT NULL DEFAULT 0,
-            credit_days INT NOT NULL DEFAULT 0,
+            credit_days VARCHAR NOT NULL DEFAULT 0,
             regular_client INT NOT NULL DEFAULT 0
             )"""
         self.database.execute(query)
@@ -202,19 +202,39 @@ class Company:
         salary_frame.pack()
         credit_frame = Frame(profile.root)
         credit_frame.pack()
-        Label(main_title_frame, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).pack(side=LEFT, pady=(50, 35))  # Заголовок
-        Label(lfname_frame, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 100), pady=(0, 5))
-        Label(age, text=f"Возраст: {self.user.get_age()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 175), pady=(0, 5))
-        Label(email_frame, text=f"Email: {self.user.get_email()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 29), pady=(0, 5))
-        Label(phone_frame, text=f"Номер телефона: {self.user.get_phone()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
-        if self.user.get_work_place() != "":
-            Label(work_place_frame, text=f"Место работы: {self.user.get_work_place()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
-            Label(work_position_frame, text=f"Должность: {self.user.get_work_position()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
-            Label(work_position_frame, text=f"Зарплата: {self.user.get_salary()} грн.", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
-        if self.user.get_credit() > 0:
-            Label(work_position_frame, text=f"Сумма кредита: {self.user.get_credit()} грн.", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
+        input_data_frame = Frame(profile.root)
+        input_data_frame.pack()
+        back_to_client_area_frame = Frame(profile.root)
+        back_to_client_area_frame.pack()
+        if self.user.get_work_place() == None:
+            work_place_frame.pack_forget()
+            work_position_frame.pack_forget()
+            salary_frame.pack_forget()
+        else:
+            input_data_frame.pack_forget()
+        if self.user.get_credit() == 0:
+            credit_frame.pack_forget()
             
-        
+        Label(main_title_frame, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).pack(side=LEFT, pady=(50, 35))  # Заголовок
+        Label(lfname_frame, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 150), pady=(0, 5))
+        Label(age, text=f"Возраст: {self.user.get_age()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 225), pady=(0, 5))
+        Label(email_frame, text=f"Email: {self.user.get_email()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 79), pady=(0, 5))
+        Label(phone_frame, text=f"Номер телефона: {self.user.get_phone()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 57), pady=(0, 5))
+        Label(work_place_frame, text=f"Место работы: {self.user.get_work_place()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
+        Label(work_position_frame, text=f"Должность: {self.user.get_work_position()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
+        Label(salary_frame, text=f"Зарплата: {self.user.get_salary()} грн.", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 7), pady=(0, 5))
+        Label(credit_frame, text=f"Сумма кредита: {self.user.get_credit()} грн, Срок кредита: {self.user.get_credit_days()}", font=("", 12, "bold")).pack(side=LEFT, padx=(3, 7), pady=(0, 15))
+        Button(input_data_frame, text="Нажми, чтобы заполнить\n дополнительные данные", font=("", 12)).pack(side=LEFT)
+        Button(back_to_client_area_frame, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(side=LEFT, padx=(0, 400), pady=(20, 0))
+        # TODO::+=======================================================
+    
+    def close_and_show_another_window(self, close, show):
+        close.root.destroy()
+        show.root.deiconify()
+    
+    def additional_information_window(self, profile_window=Child_window):
+        pass     
+
     def apply_for_credit(self, client_area_window=Child_window):
         pass
 
