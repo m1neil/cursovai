@@ -185,54 +185,55 @@ class Company:
             "WM_DELETE_WINDOW",
             lambda this_window=client_area_window: self.exit(this_window, "Закрыть программу?"),
         )
-        main_title_frame = Frame(profile.root)
-        main_title_frame.pack()
-        lfname_frame = Frame(profile.root)
-        lfname_frame.pack()
-        age = Frame(profile.root)
-        age.pack()
-        email_frame = Frame(profile.root)
-        email_frame.pack()
-        phone_frame = Frame(profile.root)
-        phone_frame.pack()
-        work_place_frame = Frame(profile.root)
-        work_place_frame.pack()
-        work_position_frame = Frame(profile.root)
-        work_position_frame.pack()
-        salary_frame = Frame(profile.root)
-        salary_frame.pack()
-        credit_frame = Frame(profile.root)
-        credit_frame.pack()
-        input_data_frame = Frame(profile.root)
-        input_data_frame.pack()
-        back_to_client_area_frame = Frame(profile.root)
-        back_to_client_area_frame.pack()
-        if self.user.get_work_place() == None:
-            work_place_frame.pack_forget()
-            work_position_frame.pack_forget()
-            salary_frame.pack_forget()
-        else:
-            input_data_frame.pack_forget()
-        if self.user.get_credit() == 0:
-            credit_frame.pack_forget()
+        # main_title_frame = Frame(profile.root)
+        # main_title_frame.pack()
+        # lfname_frame = Frame(profile.root)
+        # lfname_frame.pack()
+        # age = Frame(profile.root)
+        # age.pack()
+        # email_frame = Frame(profile.root)
+        # email_frame.pack()
+        # phone_frame = Frame(profile.root)
+        # phone_frame.pack()
+        # work_place_frame = Frame(profile.root)
+        # work_place_frame.pack()
+        # work_position_frame = Frame(profile.root)
+        # work_position_frame.pack()
+        # salary_frame = Frame(profile.root)
+        # salary_frame.pack()
+        # credit_frame = Frame(profile.root)
+        # credit_frame.pack()
+        # input_data_frame = Frame(profile.root)
+        # input_data_frame.pack()
+        # back_to_client_area_frame = Frame(profile.root)
+        # back_to_client_area_frame.pack()
+        # if self.user.get_work_place() == None:
+        #     work_place_frame.pack_forget()
+        #     work_position_frame.pack_forget()
+        #     salary_frame.pack_forget()
+        # else:
+        #     input_data_frame.pack_forget()
+        # if self.user.get_credit() == 0:
+        #     credit_frame.pack_forget()
 
-        Label(main_title_frame, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).pack(side=LEFT, pady=(50, 35))  # Заголовок
-        Label(lfname_frame, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 150), pady=(0, 5))
-        Label(age, text=f"Возраст: {self.user.get_age()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 225), pady=(0, 5))
-        Label(email_frame, text=f"Email: {self.user.get_email()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 79), pady=(0, 5))
-        Label(phone_frame, text=f"Номер телефона: {self.user.get_phone()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 57), pady=(0, 5))
-        Label(work_place_frame, text=f"Место работы: {self.user.get_work_place()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 143), pady=(0, 5))
-        Label(work_position_frame, text=f"Должность: {self.user.get_work_position()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 165), pady=(0, 5))
-        Label(salary_frame, text=f"Зарплата: {self.user.get_salary()} грн.", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 143), pady=(0, 5))
-        Label(credit_frame, text=f"Сумма кредита: {self.user.get_credit()} грн, Срок кредита: {self.user.get_credit_days()}", font=("", 12, "bold")).pack(
-            side=LEFT, padx=(3, 7), pady=(0, 15)
-        )
-        Button(
-            input_data_frame, text="Нажми, чтобы заполнить\n дополнительные данные", font=("", 12), command=lambda: self.additional_information_window(profile, client_area_window)
-        ).pack(side=LEFT, pady=(10, 0))
-        Button(back_to_client_area_frame, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
-            side=LEFT, padx=(0, 310), pady=(40, 0)
-        )
+        Label(profile.root, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).grid(row=0,column=0, pady=(20, 0)) # Заголовок
+        profile.root.grid_columnconfigure(0, minsize=500)
+        # Label(lfname_frame, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 150), pady=(0, 5))
+        # Label(age, text=f"Возраст: {self.user.get_age()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 225), pady=(0, 5))
+        # Label(email_frame, text=f"Email: {self.user.get_email()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 79), pady=(0, 5))
+        # Label(phone_frame, text=f"Номер телефона: {self.user.get_phone()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 57), pady=(0, 5))
+        # Label(work_place_frame, text=f"Место работы: {self.user.get_work_place()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 143), pady=(0, 5))
+        # Label(work_position_frame, text=f"Должность: {self.user.get_work_position()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 165), pady=(0, 5))
+        # Label(salary_frame, text=f"Зарплата: {self.user.get_salary()} грн.", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 143), pady=(0, 5))
+        # Label(credit_frame, text=f"Сумма кредита: {self.user.get_credit()} грн, Срок кредита: {self.user.get_credit_days()}", font=("", 12, "bold")).pack(
+        #     side=LEFT, padx=(3, 7), pady=(0, 15)
+        # )
+        # Button(
+        #     input_data_frame, text="Нажми, чтобы заполнить\n дополнительные данные", font=("", 12), command=lambda: self.additional_information_window(profile, client_area_window)
+        # ).pack(side=LEFT, pady=(10, 0))
+        # Button(back_to_client_area_frame, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
+        #     side=LEFT, padx=(0, 310), pady=(40, 0)
+        # )
 
     def close_and_show_another_window(self, close, show):
         close.root.destroy()
