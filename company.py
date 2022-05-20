@@ -216,7 +216,8 @@ class Company:
         # if self.user.get_credit() == 0:
         #     credit_frame.pack_forget()
 
-        Label(profile.root, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).grid(row=0,column=0, pady=(20, 0)) # Заголовок
+        profil_l = Label(profile.root, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30) # Заголовок
+        profil_l.grid(row=0,column=0, pady=(20, 0))
         profile.root.grid_columnconfigure(0, minsize=500)
         # Label(lfname_frame, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 150), pady=(0, 5))
         # Label(age, text=f"Возраст: {self.user.get_age()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 225), pady=(0, 5))
