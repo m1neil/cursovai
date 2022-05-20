@@ -76,9 +76,7 @@ class Company:
 
         btn_submit_frame = Frame(comeInAcc.root)
         btn_submit_frame.pack()
-        Button(
-            btn_submit_frame, text="Войти", font=("", 12), width=12, command=lambda: self.check_input_data(input_phone_or_email, input_password, comeInAcc)
-        ).pack(side=LEFT)
+        Button(btn_submit_frame, text="Войти", font=("", 12), width=12, command=lambda: self.check_input_data(input_phone_or_email, input_password, comeInAcc)).pack(side=LEFT)
         comeInAcc.focus()
 
     def check_input_data(self, input_phone_or_email=Entry, input_password=Entry, child_window=Child_window):
@@ -101,7 +99,10 @@ class Company:
                     if self.cursor.fetchone() is None:
                         messagebox.showwarning("Логин", "Такого логина не существует")
                     else:
-                        self.cursor.execute("SELECT password FROM users WHERE email = ? AND password = md5(?) OR phone = ? AND password = md5(?)", [email, input_password.get(), phone, input_password.get()])
+                        self.cursor.execute(
+                            "SELECT password FROM users WHERE email = ? AND password = md5(?) OR phone = ? AND password = md5(?)",
+                            [email, input_password.get(), phone, input_password.get()],
+                        )
                         if self.cursor.fetchone() is None:
                             messagebox.showwarning("Пароль", "Не верный пароль!")
                         else:
@@ -118,16 +119,17 @@ class Company:
                 messagebox.showwarning("Пароль", "Введите пароль!")
         else:
             messagebox.showwarning("Предупреждение", "Введите логин!")
-            
+
         if examination == True:
             self.simple_close_window(child_window)
             self.client_area(user_id)
-            
 
     # TODO:========================================================================================================================
-    
+
     def client_area(self, user_id):
         messagebox.showinfo("Юзер кабинет", f"Мы успешно попали в функцию и теперь можем создать новое дочерние окно! + id = {user_id}")
+
+    # TODO:========================================================================================================================
 
     def registration(self):
         self.window.root.withdraw()
@@ -164,12 +166,12 @@ class Company:
         Label(regis.root, text="Возраст").place(relx=0.315, rely=0.50, anchor=CENTER)
         age = Spinbox(regis.root, from_=18, to=60, width=4)
         age.place(relx=0.414, rely=0.50, anchor=CENTER)
-        Button(
-            regis.root, text="Очистить поля", command=lambda: self.clear(first_name, last_name, email, password, repeat_password, phone, age)
-        ).place(relx=0.55, rely=0.50, anchor=CENTER)
-        Button(
-            regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone, age)
-        ).place(relx=0.33, rely=0.58, anchor=CENTER)
+        Button(regis.root, text="Очистить поля", command=lambda: self.clear(first_name, last_name, email, password, repeat_password, phone, age)).place(
+            relx=0.55, rely=0.50, anchor=CENTER
+        )
+        Button(regis.root, text="Зарегистрироваться", command=lambda: self.get_info(first_name, last_name, email, password, repeat_password, phone, age)).place(
+            relx=0.33, rely=0.58, anchor=CENTER
+        )
         title = "Закрыть окно регистрации"
         question = "Отменить регистрацию и вернуться в меню?"
         Button(
@@ -188,15 +190,7 @@ class Company:
         age.delete(0, END)
 
     def get_info(self, fname=Entry, lname=Entry, email=Entry, password=Entry, repeat_password=Entry, phone=Entry, age=Spinbox):
-        if (
-            fname.get() != ""
-            and lname.get() != ""
-            and email.get() != ""
-            and password.get() != ""
-            and repeat_password.get() != ""
-            and phone.get() != ""
-            and age.get() != ""
-        ):
+        if fname.get() != "" and lname.get() != "" and email.get() != "" and password.get() != "" and repeat_password.get() != "" and phone.get() != "" and age.get() != "":
             # check email========================
             email_str = str(email.get())
             correct_email = False
@@ -264,9 +258,7 @@ class Company:
                     self.cursor.execute(f"SELECT phone FROM users WHERE phone = '{user_phone}'")
                     if self.cursor.fetchone() is None:
                         values = [fname.get(), lname.get(), email.get(), password.get(), "+380" + phone.get(), int(age.get())]
-                        self.cursor.execute(
-                            "INSERT INTO users(first_name, last_name, email, password, phone, age) VALUES( ?, ?, ?, md5(?), ?, ?)", values
-                        )
+                        self.cursor.execute("INSERT INTO users(first_name, last_name, email, password, phone, age) VALUES( ?, ?, ?, md5(?), ?, ?)", values)
                         self.database.commit()
                         messagebox.showinfo("Успех", "Поздравляю вы зарегистрировались!")
                         self.clear(fname, lname, email, password, repeat_password, phone, age)
@@ -292,7 +284,7 @@ class Company:
         if messagebox.askyesno(title, question):
             self.window.root.deiconify()
             this_window.root.destroy()
-            
+
     def simple_close_window(self, this_window):
         this_window.root.destroy()
 
