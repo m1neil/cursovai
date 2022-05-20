@@ -53,6 +53,8 @@ class Company:
         font_size = 12
         Button(bottom_frame, text="Войти в аккаунт", command=self.comeInAccount, font=("", font_size)).pack(side=LEFT, padx=(0, 10))
         Button(bottom_frame, text="Регистарция", command=self.registration, font=("", font_size)).pack(side=LEFT)
+        # ! Потом убрать
+        self.additional_information_window(self.window)
 
     def comeInAccount(self):
         comeInAcc = Child_window(self.window.root, "Вход в аккаунт", 500, 500, 700, 250, "icon/comeToAcc.ico")
@@ -233,18 +235,37 @@ class Company:
         Button(back_to_client_area_frame, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
             side=LEFT, padx=(0, 310), pady=(40, 0)
         )
-        # TODO::+=======================================================
+        
 
     def close_and_show_another_window(self, close, show):
         close.root.destroy()
         show.root.deiconify()
 
+    # TODO::+=======================================================
     def additional_information_window(self, profile_window=Child_window):
-        add_info_win = Child_window(profile_window.root, "Доп. информация о клиенте", 400, 200, 800, 250)
+        add_info_win = Child_window(profile_window.root, "Доп. информация о клиенте", 400, 200, 800, 350)
+        main_title_frame = Frame(add_info_win.root)
+        main_title_frame.pack()
+        work_place_frame = Frame(add_info_win.root)
+        work_place_frame.pack()
+        work_position_frame = Frame(add_info_win.root)
+        work_position_frame.pack()
+        salary_frame = Frame(add_info_win.root)
+        salary_frame.pack()
+        Label(main_title_frame, text="Заполните доп. данные", relief=RAISED, bd=3, font=("", 14), padx=30).pack(side=LEFT, pady=(15, 15))  # Заголовок
+        Label(work_place_frame, text="Место работы:", font=("", 11)).pack(side=LEFT, padx=(0, 0))
+        work_place = Entry(work_place_frame, font=("", 11))
+        work_place.pack(side=LEFT, padx=(5, 23))  # first name
+        Label(work_position_frame, text="Должность:", font=("", 11)).pack(side=LEFT, padx=(0, 0))
+        work_position = Entry(work_position_frame, font=("", 11))
+        work_position.pack(side=LEFT, padx=(5, 0))
         
+        Label(salary_frame, text="Зарплата:", font=("", 11)).pack(side=LEFT, padx=(10, 0))
+        salary = Entry(salary_frame, font=("", 11))
+        salary.pack(side=LEFT, padx=(5, 0))
         add_info_win.focus()
-        pass
-
+        
+    # TODO::+=======================================================
     def apply_for_credit(self, client_area_window=Child_window):
         pass
 
