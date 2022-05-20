@@ -134,7 +134,7 @@ class Company:
             self.cursor = self.database.cursor()
             self.user.set_id(user_id)
             self.user.set_fname(self.cursor.execute("SELECT first_name FROM users WHERE id = ?", [user_id]).fetchone()[0])
-            
+
             # self._last_name = ""
             # self._email = ""
             # self._password = ""
@@ -146,14 +146,13 @@ class Company:
             # self._credit = 0.0
             # self._sum_use_credit = 0.0
             # self._credit_days = 0
-              
         except sqlite3.Error as er:
             print(er.with_traceback())
             messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
         finally:
             self.cursor.close()
             self.database.close()
-
+         # TODO: После того как заполним необходимые данные создаем окно 
     # TODO:========================================================================================================================
 
     def registration(self):
