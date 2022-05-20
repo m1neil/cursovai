@@ -232,9 +232,7 @@ class Company:
         )
         Button(back_to_client_area_frame, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
             side=LEFT, padx=(0, 310), pady=(40, 0)
-        )
-        
-        
+        )      
 
     def close_and_show_another_window(self, close, show):
         close.root.destroy()
@@ -266,7 +264,6 @@ class Company:
         salary.pack(side=LEFT, padx=(5, 0))
         Button(button_frame, text="Ок", command=lambda: self.check_input_user(work_place.get(), work_position.get(), salary.get(), add_info_win)).pack(side=LEFT, padx=(0, 5), pady=(15, 0))
         Button(button_frame, text="Отмена", command=lambda: self.simple_close_window(add_info_win)).pack(side=LEFT, padx=(5, 0), pady=(15, 0))
-        
         add_info_win.focus()
         
     def check_input_user(self, work_place, work_position, salary, win):
@@ -287,13 +284,13 @@ class Company:
                     self.cursor.execute("UPDATE users SET work_place = ?, work_position = ?, salary = ? WHERE id = ?", [work_place, work_position, float(salary), self.user.get_id()])
                     self.database.commit()
                     self.simple_close_window(win)
+                    self.update_profile = True
                 except sqlite3.Error as er:
                     print(er.with_traceback())
                     messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
                 finally:
                     self.cursor.close()
                     self.database.close()
-                        
                 
     def is_number(self,str):
         try:
