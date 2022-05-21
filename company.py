@@ -233,9 +233,11 @@ class Company:
             side=LEFT, padx=(0, 310), pady=(40, 0)
         )
 
-    def close_and_show_another_window(self, close, show):
-        close.root.destroy()
+    def close_and_show_another_window(self, close, show, frame_clear=Entry):
+        if type(frame_clear) == Entry: 
+            frame_clear.delete(0, END)
         show.root.deiconify()
+        close.root.destroy()
 
     def additional_information_window(self, profile_window=Child_window, client_area_window=Child_window):
         add_info_win = Child_window(profile_window.root, "Доп. информация о клиенте", 400, 200, 800, 350, "icon/add_info.ico")
@@ -338,9 +340,11 @@ class Company:
             days = Combobox(frame_days_credit, width=17, justify=CENTER, values=month)
             days.current(0)
             days.pack()
-            Button(frame_about_credit, text="О кредите", command=self.info_about_credit, font=("", 12)).pack(pady=(40, 0))
-            Button(frame_about_credit, text="Расчёты", command=lambda: self.count_sum_credit(sum_credit, days, aplly_credit), font=("", 12)).pack(pady=(40, 0))
-
+            Button(frame_about_credit, text="О кредите", command=self.info_about_credit, font=("", 12)).pack(side=LEFT, padx=(0, 5), pady=(25, 0))
+            Button(frame_about_credit, text="Расчёты", command=lambda: self.count_sum_credit(sum_credit, days, aplly_credit), font=("", 12)).pack(padx=(5, 0), pady=(25, 0))
+            Button(aplly_credit.root, text="Оформить кредит", font=("", 12)).pack(padx=(5, 0), pady=(15, 0))
+            Button(aplly_credit.root, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(aplly_credit, client_area_window, sum_credit)).pack(padx=(5, 0), pady=(15, 0))
+    
     def info_about_credit(self):
         info_credit = """Минмальная сумма кредита - 600 грн.
 Максимальная сумма кредита - 15 000 грн для не постоянного клиента.
@@ -361,7 +365,10 @@ class Company:
                 if summa < 600:
                     messagebox.showwarning("Предупреждение", "Минимальная сумма 600 гнр.")
                 elif summa > 15000 and self.user.get_regula_client() == 0:
-                    messagebox.showwarning("Клиенту", "Вы не постоянный клиент, вам разрешена сумма до 15 000 грн.\nПогасив кредит, вы станете постоянным клиетом и сможете оформить следующий кредит до 25 000 грн.")
+                    messagebox.showwarning(
+                        "Клиенту",
+                        "Вы не постоянный клиент, вам разрешена сумма до 15 000 грн.\nПогасив кредит, вы станете постоянным клиетом и сможете оформить следующий кредит до 25 000 грн.",
+                    )
                 elif summa > 25000 and self.user.get_regula_client() == 1:
                     messagebox.showwarning("Клиенту", "Наша компания выдает кредит максимально до 25 000 грн.")
                 else:
@@ -377,16 +384,24 @@ class Company:
                     frame_percent_for_one_day = Frame(total_about_credit.root)
                     frame_percent_for_one_day.pack()
                     Label(frame_main_title, text="Итоги по кредиту", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
-                    Label(frame_credit_without_percent, justify=LEFT, font=("", 12), text=f"Сумма кредита без учёта процентов: {summa} грн.\n"
-                          +f"Кредит выдается на: {month.get()}\n"
-                          +f"Ежедневная процентная ставка: 2%").pack()
+                    Label(
+                        frame_credit_without_percent,
+                        justify=LEFT,
+                        font=("", 12),
+                        text=f"Сумма кредита без учёта процентов: {summa} грн.\n" + f"Кредит выдается на: {month.get()}\n" + f"Ежедневная процентная ставка: 2%",
+                    ).pack()
                     percent_one_day = (summa * 2) / 100
                     sum_for_use_credit = percent_one_day * how_months * 30
                     total_sum = summa + sum_for_use_credit
-                    Label(frame_percent_for_one_day, justify=LEFT, font=("", 12), text=f"Сумма процент за 1 день: {percent_one_day} грн.\n"
-                          +f"Процент за использование кредита за {month.get()} составляет {sum_for_use_credit} грн.\n"
-                          +f"При возвращение кредита нужно будет заплатить {total_sum} грн.").pack()
-                    Button(total_about_credit.root, text="ОК").pack()
+                    Label(
+                        frame_percent_for_one_day,
+                        justify=LEFT,
+                        font=("", 12),
+                        text=f"Сумма процент за 1 день: {percent_one_day} грн.\n"
+                        + f"Процент за использование кредита за {month.get()} составляет {sum_for_use_credit} грн.\n"
+                        + f"С учётом использования кредина нужно будет вернуть {total_sum} грн.",
+                    ).pack()
+                    Button(total_about_credit.root, text="ОК", command=lambda: self.simple_close_window(total_about_credit)).pack(pady=(10, 0))
         else:
             messagebox.showwarning("Предупреждение", "Пустое поле!")
             return
