@@ -1,3 +1,7 @@
+from cgitb import text
+from turtle import right
+
+from scipy.__config__ import show
 from window import Window
 from tkinter import *
 from tkinter.ttk import Combobox
@@ -173,7 +177,7 @@ class Company:
         exit_account.pack()
         Label(main_title_frame, text="Личный кабинет", relief=RAISED, bd=3, font=("", 18), padx=30).pack(side=LEFT, pady=(30, 35))  # Заголовок
         Button(user_profile_frame, text="Профиль", font=("", 12), command=lambda: self.profile(client_area_window)).pack(side=LEFT, pady=(0, 5))
-        Button(credit_frame, text="Оформить кредит", command=self.apply_for_credit, font=("", 12)).pack(side=LEFT, pady=(0, 5))
+        Button(credit_frame, text="Оформить кредит", command=lambda: self.apply_for_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
         Button(return_credit, text="Вернуть кредит", command=self.return_credit, font=("", 12)).pack(side=LEFT, pady=(0, 5))
         Button(exit_account, text="Выйти из аккаунта", command=self.exit_account, font=("", 12)).pack(side=LEFT)
 
@@ -227,8 +231,7 @@ class Company:
     def close_and_show_another_window(self, close, show):
         close.root.destroy()
         show.root.deiconify()
-
-    # TODO::+=======================================================
+        
     def additional_information_window(self, profile_window=Child_window, client_area_window=Child_window):
         add_info_win = Child_window(profile_window.root, "Доп. информация о клиенте", 400, 200, 800, 350, "icon/add_info.ico")
         main_title_frame = Frame(add_info_win.root)
@@ -297,7 +300,37 @@ class Company:
 
     # TODO::+=======================================================
     def apply_for_credit(self, client_area_window=Child_window):
-        pass
+        
+        aplly_credit = Child_window(client_area_window.root, "Оформление кредита", 500, 500, 800, 250, "icon/apply_credit.ico")
+        aplly_credit.root.protocol(
+            "WM_DELETE_WINDOW",
+            lambda this_window=client_area_window: self.exit(this_window, "Закрыть программу?"),
+        )
+        if self.user.get_work_place() == "":
+            if messagebox.showwarning("Предпреждение", "Нету необходимых данных!\nЗаполните их в профиле"):
+                self.simple_close_window(aplly_credit)
+        else:
+            client_area_window.root.withdraw()
+            frame_main_title = Frame(aplly_credit.root)
+            frame_main_title.pack()
+            frame_credit = Frame(aplly_credit.root)
+            frame_credit.pack(pady=(0, 10))
+            days_credit = Frame(aplly_credit.root)
+            days_credit.pack(padx=(10, 0))
+            Label(frame_main_title, text="Кредитный отдел", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
+            info_credit = """Минмальная сумма кредита - 600 грн.
+            Максимальная сумма кредита - 15 000 грн.
+            Кредитный процент составляет 2% на день
+            Срок платежа для не постоянных клиетов от 1 и до 3 месяцев.
+            Для постоянного клиента срок составляет до 12 месяцев."""
+            
+            
+            Label(frame_credit, text="Сумма кредита:").pack(side=LEFT, padx=(0, 5))
+            sum_credit = Entry(frame_credit, text="Credit")
+            sum_credit.pack()
+            Label(days_credit, text="Срок кредита:").pack(side=LEFT, padx=(0, 5))
+            sum_credit = Entry(days_credit, text="Credit")
+            sum_credit.pack()
 
     def return_credit(self, client_area_window=Child_window):
         pass
