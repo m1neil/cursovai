@@ -198,7 +198,7 @@ class Company:
                 return
         else:
             profile.root.deiconify()
-            
+
         main_title_frame = Frame(profile.root)
         main_title_frame.pack()
         about_client = Frame(profile.root)
@@ -209,18 +209,22 @@ class Company:
         credit_frame.pack()
         exit_this_win = Frame(profile.root)
         exit_this_win.pack()
-        Label(main_title_frame, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(20, 15)) # Заголовок
-        Label(about_client, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}\n"
-            +f"Возраст: {self.user.get_age()}\n"
-            +f"Email: {self.user.get_email()}\n"
-            +f"Номер телефона: {self.user.get_phone()}\n"
-            +f"Место работы: {self.user.get_work_place()}\n"
-            +f"Должность: {self.user.get_work_position()}\n"
-            +f"Зарплата: {self.user.get_salary()} грн.",
-            font=("", 12, "bold"), justify=LEFT).pack()
+        Label(main_title_frame, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(20, 15))  # Заголовок
+        Label(
+            about_client,
+            text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}\n"
+            + f"Возраст: {self.user.get_age()}\n"
+            + f"Email: {self.user.get_email()}\n"
+            + f"Номер телефона: {self.user.get_phone()}\n"
+            + f"Место работы: {self.user.get_work_place()}\n"
+            + f"Должность: {self.user.get_work_position()}\n"
+            + f"Зарплата: {self.user.get_salary()} грн.",
+            font=("", 12, "bold"),
+            justify=LEFT,
+        ).pack()
         text = ""
         if self.user.get_credit() != 0:
-            text = f"Взят кредит на сумму: {self.user.get_credit()} грн\n"+f"Срок кредита: {self.user.get_credit_days()}"
+            text = f"Взят кредит на сумму: {self.user.get_credit()} грн\n" + f"Срок кредита: {self.user.get_credit_days()}"
         else:
             text = "Кредит не оформлен!"
         credit = Label(credit_frame, text=text, justify=LEFT, font=("", 12, "bold"))
@@ -232,7 +236,7 @@ class Company:
     def close_and_show_another_window(self, close, show):
         close.root.destroy()
         show.root.deiconify()
-        
+
     def additional_information_window(self, profile_window=Child_window, client_area_window=Child_window):
         add_info_win = Child_window(profile_window.root, "Доп. информация о клиенте", 400, 200, 800, 350, "icon/add_info.ico")
         main_title_frame = Frame(add_info_win.root)
@@ -301,7 +305,7 @@ class Company:
 
     # TODO::+=======================================================
     def apply_for_credit(self, client_area_window=Child_window):
-        
+
         aplly_credit = Child_window(client_area_window.root, "Оформление кредита", 500, 500, 800, 250, "icon/apply_credit.ico")
         aplly_credit.root.protocol(
             "WM_DELETE_WINDOW",
@@ -321,23 +325,22 @@ class Company:
             frame_about_credit = Frame(aplly_credit.root)
             frame_about_credit.pack()
             Label(frame_main_title, text="Кредитный отдел", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
-            
-            
-            
+
             Label(frame_credit, text="Сумма кредита:").pack(side=LEFT, padx=(0, 5))
             sum_credit = Entry(frame_credit, text="Credit")
             sum_credit.pack(pady=(2, 0))
             Label(frame_days_credit, text="Срок кредита:").pack(side=LEFT, padx=(0, 5))
             month = ""
             if self.user.get_regula_client() == 1:
-                month = ("1 месяц", "2 месяца", "3 месяца", "4 месяца", "5 месяцев","6 месяцев","7 месяцев","8 месяцев","9 месяцев")
+                month = ("1 месяц", "2 месяца", "3 месяца", "4 месяца", "5 месяцев", "6 месяцев", "7 месяцев", "8 месяцев", "9 месяцев")
             else:
                 month = ("1 месяц", "2 месяца", "3 месяца")
             days = Combobox(frame_days_credit, width=17, justify=CENTER, values=month)
             days.current(0)
             days.pack()
             Button(frame_about_credit, text="О кредите", command=self.info_about_credit, font=("", 12)).pack(pady=(40, 0))
-            
+            Button(frame_about_credit, text="Расчёты", command=lambda: self.count_sum_credit(sum_credit, days, aplly_credit), font=("", 12)).pack(pady=(40, 0))
+
     def info_about_credit(self):
         info_credit = """Минмальная сумма кредита - 600 грн.
 Максимальная сумма кредита - 15 000 грн для не постоянного клиента.
@@ -346,7 +349,32 @@ class Company:
 Срок платежа для не постоянных клиетов от 1 до 3 месяцев.
 Для постоянного клиента срок составляет до 9 месяцев."""
         messagebox.showinfo("О кредите", info_credit)
-            
+
+    def count_sum_credit(self, sum_credit=Entry, month=Combobox, aplly_credit=Child_window):
+        if sum_credit.get() != "":
+            if not self.is_number(sum_credit.get()):
+                messagebox.showerror("Ошибка", "Не корректный тип данных")
+                return
+            else:
+                summa = float(sum_credit.get())
+                how_months = int(month.get()[0])
+                if summa < 600:
+                    messagebox.showwarning("Предупреждение", "Минимальная сумма 600 гнр.")
+                elif summa > 15000 and self.user.get_regula_client() == 0:
+                    messagebox.showwarning("Клиенту", "Вы не постоянный клиент, вам разрешена сумма до 15 000 грн.\nПогасив кредит, вы станете постоянным клиетом и сможете оформить следующий кредит до 25 000 грн.")
+                elif summa > 25000 and self.user.get_regula_client() == 1:
+                    messagebox.showwarning("Клиенту", "Наша компания выдает кредит максимально до 25 000 грн.")
+                else:
+                    total_about_credit = Child_window(aplly_credit.root, "Итоги по кредиту", 300, 300, 800, 250, "icon/apply_credit.ico")
+                    frame_main_title = Frame(total_about_credit.root)
+                    frame_main_title.pack()
+                    frame_credit_without_percent = Frame(total_about_credit.root)
+                    frame_credit_without_percent.pack()
+                    Label(frame_main_title, text="Итоги по кредиту", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
+                    Label(frame_credit_without_percent, text=f"Сумма кредита без учёта процентов: {summa} грн.")
+        else:
+            messagebox.showwarning("Предупреждение", "Пустое поле!")
+            return
 
     def return_credit(self, client_area_window=Child_window):
         pass
