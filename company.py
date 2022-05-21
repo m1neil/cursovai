@@ -377,15 +377,16 @@ class Company:
                     frame_percent_for_one_day = Frame(total_about_credit.root)
                     frame_percent_for_one_day.pack()
                     Label(frame_main_title, text="Итоги по кредиту", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
-                    Label(frame_credit_without_percent, text=f"Сумма кредита без учёта процентов: {summa} грн.").pack()
-                    Label(frame_time_credit, text=f"Кредит выдается на: {month.get()}").pack()
-                    Label(frame_percent, text=f"Ежедневная процентная ставка: 2%").pack()
+                    Label(frame_credit_without_percent, justify=LEFT, font=("", 12), text=f"Сумма кредита без учёта процентов: {summa} грн.\n"
+                          +f"Кредит выдается на: {month.get()}\n"
+                          +f"Ежедневная процентная ставка: 2%").pack()
                     percent_one_day = (summa * 2) / 100
                     sum_for_use_credit = percent_one_day * how_months * 30
                     total_sum = summa + sum_for_use_credit
-                    Label(frame_percent_for_one_day, text=f"Сумма процент за 1 день: {percent_one_day} грн.\n"
+                    Label(frame_percent_for_one_day, justify=LEFT, font=("", 12), text=f"Сумма процент за 1 день: {percent_one_day} грн.\n"
                           +f"Процент за использование кредита за {month.get()} составляет {sum_for_use_credit} грн.\n"
-                          +f"При возвращение кредите нужно будет заплатить {total_sum} грн.").pack()
+                          +f"При возвращение кредита нужно будет заплатить {total_sum} грн.").pack()
+                    Button(total_about_credit.root, text="ОК").pack()
         else:
             messagebox.showwarning("Предупреждение", "Пустое поле!")
             return
