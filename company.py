@@ -365,13 +365,27 @@ class Company:
                 elif summa > 25000 and self.user.get_regula_client() == 1:
                     messagebox.showwarning("Клиенту", "Наша компания выдает кредит максимально до 25 000 грн.")
                 else:
-                    total_about_credit = Child_window(aplly_credit.root, "Итоги по кредиту", 300, 300, 800, 250, "icon/apply_credit.ico")
+                    total_about_credit = Child_window(aplly_credit.root, "Итоги по кредиту", 600, 300, 800, 250, "icon/apply_credit.ico")
                     frame_main_title = Frame(total_about_credit.root)
                     frame_main_title.pack()
                     frame_credit_without_percent = Frame(total_about_credit.root)
                     frame_credit_without_percent.pack()
+                    frame_time_credit = Frame(total_about_credit.root)
+                    frame_time_credit.pack()
+                    frame_percent = Frame(total_about_credit.root)
+                    frame_percent.pack()
+                    frame_percent_for_one_day = Frame(total_about_credit.root)
+                    frame_percent_for_one_day.pack()
                     Label(frame_main_title, text="Итоги по кредиту", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
-                    Label(frame_credit_without_percent, text=f"Сумма кредита без учёта процентов: {summa} грн.")
+                    Label(frame_credit_without_percent, text=f"Сумма кредита без учёта процентов: {summa} грн.").pack()
+                    Label(frame_time_credit, text=f"Кредит выдается на: {month.get()}").pack()
+                    Label(frame_percent, text=f"Ежедневная процентная ставка: 2%").pack()
+                    percent_one_day = (summa * 2) / 100
+                    sum_for_use_credit = percent_one_day * how_months * 30
+                    total_sum = summa + sum_for_use_credit
+                    Label(frame_percent_for_one_day, text=f"Сумма процент за 1 день: {percent_one_day} грн.\n"
+                          +f"Процент за использование кредита за {month.get()} составляет {sum_for_use_credit} грн.\n"
+                          +f"При возвращение кредите нужно будет заплатить {total_sum} грн.").pack()
         else:
             messagebox.showwarning("Предупреждение", "Пустое поле!")
             return
