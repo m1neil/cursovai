@@ -99,7 +99,7 @@ class Company:
     # ! Не забудь отменить что внутри этой свернутой функции пжжжжжжжж я тебя умоляю
     def check_input_data(self, input_phone_or_email=Entry, input_password=Entry, child_window=Child_window):
         examination = True  #! Изменить на False
-        user_id = 2  #! Изменить на None
+        user_id = 3  #! Изменить на None
         # if input_phone_or_email.get() != "":
         #     if input_password.get() != "":
         #         try:
@@ -202,10 +202,12 @@ class Company:
             if messagebox.askokcancel(profile.root, "Необходимо заполнить некотороые данные!"):
                 profile.root.withdraw()
                 self.additional_information_window(profile, client_area_window)
+                profile.root.destroy()
             else:
+                self.close_and_show_another_window(profile, client_area_window)
                 return
-        else:
-            profile.root.deiconify()
+        # else:
+        #     #! Що це таке? И главное на хера я это сделал?
 
         main_title_frame = Frame(profile.root)
         main_title_frame.pack()
@@ -273,7 +275,7 @@ class Company:
         Button(
             button_frame, text="Ок", command=lambda: self.check_input_user(work_place.get(), work_position.get(), salary.get(), add_info_win, profile_window, client_area_window)
         ).pack(side=LEFT, padx=(0, 5), pady=(15, 0))
-        Button(button_frame, text="Отмена", command=lambda: self.simple_close_window(add_info_win)).pack(side=LEFT, padx=(5, 0), pady=(15, 0))
+        Button(button_frame, text="Отмена", command=lambda: self.close_and_show_another_window(add_info_win, client_area_window)).pack(side=LEFT, padx=(5, 0), pady=(15, 0))
         add_info_win.focus()
 
     def check_input_user(self, work_place, work_position, salary, win=Child_window, profile_window=Child_window, client_area_window=Child_window):
@@ -283,7 +285,7 @@ class Company:
             if not self.is_number(salary):
                 messagebox.showwarning("Ошбика", "Не корректный тип данных")
             elif float(salary) < 6500:
-                messagebox.showwarning("Минимальная зарпалата в Украине 6500 грн.")
+                messagebox.showwarning("Не корректные данные", "Минимальная зарпалата в Украине 6500 грн.")
             else:
                 try:
                     self.database = sqlite3.connect("clients.db")
@@ -297,7 +299,6 @@ class Company:
                     self.database.commit()
                     messagebox.showinfo("Успех", "Мы успешно занесли данные.\n Снова зайдите в профиль!")
                     self.simple_close_window(win)
-                    self.simple_close_window(profile_window)
                     client_area_window.root.deiconify()
                 except sqlite3.Error as er:
                     print(er.with_traceback())
@@ -353,6 +354,9 @@ class Company:
             Button(aplly_credit.root, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(aplly_credit, client_area_window, sum_credit)).pack(padx=(5, 0), pady=(15, 0))
     # TODO =============================================================================================
     def confirm_credit(self, aplly_credit, sum_credit=Entry, month=Combobox):
+        if self.user.get_work_place() == None:
+            messagebox.showerror("Нету необходимых данных!", "Заполните данные в своём профиле!")
+            return
         if self.user.get_credit() > 0:
             messagebox.showinfo("Кредит", "У вас есть не погашенный кредит!")
         else:
@@ -415,7 +419,8 @@ class Company:
                             self.cursor.execute("UPDATE users SET credit = ?, sum_use_credit = ?, credit_days = ? WHERE id = ?", [self.user.get_credit(), self.user.get_sum_user_credit(), months.get(), self.user.get_id()])
                             self.card_database.commit()
                             self.database.commit()
-                            messagebox.showinfo("Успех", "Успех")
+                            messagebox.showinfo("Операция завершенна", "Вы получили деньги на свою карту!")
+                            self.simple_close_window(win)
                 except sqlite3.Error as er:
                     print(er.with_traceback())
                     messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
