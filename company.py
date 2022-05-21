@@ -185,47 +185,31 @@ class Company:
             "WM_DELETE_WINDOW",
             lambda this_window=client_area_window: self.exit(this_window, "Закрыть программу?"),
         )
-        # main_title_frame = Frame(profile.root)
-        # main_title_frame.pack()
-        # lfname_frame = Frame(profile.root)
-        # lfname_frame.pack()
-        # age = Frame(profile.root)
-        # age.pack()
-        # email_frame = Frame(profile.root)
-        # email_frame.pack()
-        # phone_frame = Frame(profile.root)
-        # phone_frame.pack()
-        # work_place_frame = Frame(profile.root)
-        # work_place_frame.pack()
-        # work_position_frame = Frame(profile.root)
-        # work_position_frame.pack()
-        # salary_frame = Frame(profile.root)
-        # salary_frame.pack()
-        # credit_frame = Frame(profile.root)
-        # credit_frame.pack()
-        # input_data_frame = Frame(profile.root)
-        # input_data_frame.pack()
-        # back_to_client_area_frame = Frame(profile.root)
-        # back_to_client_area_frame.pack()
-        # if self.user.get_work_place() == None:
-        #     work_place_frame.pack_forget()
-        #     work_position_frame.pack_forget()
-        #     salary_frame.pack_forget()
-        # else:
-        #     input_data_frame.pack_forget()
-        # if self.user.get_credit() == 0:
-        #     credit_frame.pack_forget()
-
-        profil_l = Label(profile.root, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30) # Заголовок
-        profil_l.grid(row=0,column=0, pady=(20, 0))
-        profile.root.grid_columnconfigure(0, minsize=500)
-        # Label(lfname_frame, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 150), pady=(0, 5))
-        # Label(age, text=f"Возраст: {self.user.get_age()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 225), pady=(0, 5))
-        # Label(email_frame, text=f"Email: {self.user.get_email()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 79), pady=(0, 5))
-        # Label(phone_frame, text=f"Номер телефона: {self.user.get_phone()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 57), pady=(0, 5))
-        # Label(work_place_frame, text=f"Место работы: {self.user.get_work_place()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 143), pady=(0, 5))
-        # Label(work_position_frame, text=f"Должность: {self.user.get_work_position()}", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 165), pady=(0, 5))
-        # Label(salary_frame, text=f"Зарплата: {self.user.get_salary()} грн.", font=("", 12, "bold")).pack(side=LEFT, padx=(0, 143), pady=(0, 5))
+        if self.user.get_work_place() == None:
+            if messagebox.askokcancel(profile.root, "Необходимо заполнить некотороые данные!"):
+                profile.root.withdraw()
+                self.additional_information_window(profile, client_area_window)
+            else:
+                return
+        else:
+            profile.root.deiconify()
+            
+        main_title_frame = Frame(profile.root)
+        main_title_frame.pack()
+        about_client = Frame(profile.root)
+        about_client.pack()
+        info_about_work = Frame(profile.root)
+        info_about_work.pack()
+        Label(main_title_frame, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(20, 15)) # Заголовок
+        Label(about_client, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}\n"
+            +f"Возраст: {self.user.get_age()}\n"
+            +f"Email: {self.user.get_email()}\n"
+            +f"Номер телефона: {self.user.get_phone()}\n"
+            +f"Место работы: {self.user.get_work_place()}\n"
+            +f"Должность: {self.user.get_work_position()}\n"
+            +f"Зарплата: {self.user.get_salary()} грн.",
+            font=("", 12, "bold"), justify=LEFT).pack()
+        
         # Label(credit_frame, text=f"Сумма кредита: {self.user.get_credit()} грн, Срок кредита: {self.user.get_credit_days()}", font=("", 12, "bold")).pack(
         #     side=LEFT, padx=(3, 7), pady=(0, 15)
         # )
@@ -289,7 +273,7 @@ class Company:
                         "UPDATE users SET work_place = ?, work_position = ?, salary = ? WHERE id = ?", [work_place, work_position, float(salary), self.user.get_id()]
                     )
                     self.database.commit()
-                    messagebox.showinfo("Успех", "Мы успешно занесли данные.\n Сейчас вы окажетесь в личном кабенете!")
+                    messagebox.showinfo("Успех", "Мы успешно занесли данные.\n Снова зайдите в профиль!")
                     self.simple_close_window(win)
                     self.simple_close_window(profile_window)
                     client_area_window.root.deiconify()
