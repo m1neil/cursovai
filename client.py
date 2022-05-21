@@ -52,6 +52,9 @@ class Client:
 
     def get_credit_days(self):
         return self._credit_days
+    
+    def get_regula_client(self):
+        return self._regular_client
 
     # set
     def set_id(self, user_id):

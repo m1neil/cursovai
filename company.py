@@ -1,4 +1,5 @@
 from cgitb import text
+from tkinter import font
 from turtle import right
 
 from scipy.__config__ import show
@@ -315,22 +316,37 @@ class Company:
             frame_main_title.pack()
             frame_credit = Frame(aplly_credit.root)
             frame_credit.pack(pady=(0, 10))
-            days_credit = Frame(aplly_credit.root)
-            days_credit.pack(padx=(10, 0))
+            frame_days_credit = Frame(aplly_credit.root)
+            frame_days_credit.pack(padx=(10, 0))
+            frame_about_credit = Frame(aplly_credit.root)
+            frame_about_credit.pack()
             Label(frame_main_title, text="Кредитный отдел", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
-            info_credit = """Минмальная сумма кредита - 600 грн.
-            Максимальная сумма кредита - 15 000 грн.
-            Кредитный процент составляет 2% на день
-            Срок платежа для не постоянных клиетов от 1 и до 3 месяцев.
-            Для постоянного клиента срок составляет до 12 месяцев."""
+            
             
             
             Label(frame_credit, text="Сумма кредита:").pack(side=LEFT, padx=(0, 5))
             sum_credit = Entry(frame_credit, text="Credit")
-            sum_credit.pack()
-            Label(days_credit, text="Срок кредита:").pack(side=LEFT, padx=(0, 5))
-            sum_credit = Entry(days_credit, text="Credit")
-            sum_credit.pack()
+            sum_credit.pack(pady=(2, 0))
+            Label(frame_days_credit, text="Срок кредита:").pack(side=LEFT, padx=(0, 5))
+            month = ""
+            if self.user.get_regula_client() == 1:
+                month = ("1 месяц", "2 месяца", "3 месяца", "4 месяца", "5 месяцев","6 месяцев","7 месяцев","8 месяцев","9 месяцев")
+            else:
+                month = ("1 месяц", "2 месяца", "3 месяца")
+            days = Combobox(frame_days_credit, width=17, justify=CENTER, values=month)
+            days.current(0)
+            days.pack()
+            Button(frame_about_credit, text="О кредите", command=self.info_about_credit, font=("", 12)).pack(pady=(40, 0))
+            
+    def info_about_credit(self):
+        info_credit = """Минмальная сумма кредита - 600 грн.
+Максимальная сумма кредита - 15 000 грн для не постоянного клиента.
+Для постоянного клиента доступна сумма кредита в размере 25 000 грн.
+Кредитный процент составляет 2% на день.
+Срок платежа для не постоянных клиетов от 1 до 3 месяцев.
+Для постоянного клиента срок составляет до 9 месяцев."""
+        messagebox.showinfo("О кредите", info_credit)
+            
 
     def return_credit(self, client_area_window=Child_window):
         pass
