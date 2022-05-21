@@ -1,6 +1,5 @@
-from random import randint
 
-from numpy import number
+from random import randint
 from window import Window
 from tkinter import *
 from tkinter.ttk import Combobox
@@ -351,10 +350,31 @@ class Company:
             days.pack()
             Button(frame_about_credit, text="О кредите", command=self.info_about_credit, font=("", 12)).pack(side=LEFT, padx=(0, 5), pady=(25, 0))
             Button(frame_about_credit, text="Расчёты", command=lambda: self.count_sum_credit(sum_credit, days, aplly_credit), font=("", 12)).pack(padx=(5, 0), pady=(25, 0))
-            Button(aplly_credit.root, text="Оформить кредит", command=lambda: self.confirm_credit(aplly_credit), font=("", 12)).pack(padx=(5, 0), pady=(15, 0))
+            Button(aplly_credit.root, text="Оформить кредит", command=lambda: self.confirm_credit(aplly_credit, sum_credit, days), font=("", 12)).pack(padx=(5, 0), pady=(15, 0))
             Button(aplly_credit.root, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(aplly_credit, client_area_window, sum_credit)).pack(padx=(5, 0), pady=(15, 0))
     # TODO =============================================================================================
-    def confirm_credit(self, aplly_credit):
+    def confirm_credit(self, aplly_credit, sum_credit=Entry, month=Combobox):
+        if sum_credit.get() == "":
+                messagebox.showwarning("Пустое поле!")
+                return
+        else:  
+            if not self.is_number(sum_credit.get()):
+                messagebox.showwarning("Предупреждение", "Не корректный в вод данных!")
+                return
+            else:
+                summa = float(sum_credit.get())  
+                if summa < 600:
+                    messagebox.showwarning("Предупреждение", "Минимальная сумма 600 гнр.")
+                    return
+                elif summa > 15000 and self.user.get_regula_client() == 0:
+                    messagebox.showwarning(
+                        "Клиенту",
+                        "Вы не постоянный клиент, вам разрешена сумма до 15 000 грн.\nПогасив кредит, вы станете постоянным клиетом и сможете оформить следующий кредит до 25 000 грн.",
+                    )
+                    return
+                elif summa > 25000 and self.user.get_regula_client() == 1:
+                    messagebox.showwarning("Клиенту", "Наша компания выдает кредит максимально до 25 000 грн.")
+                    return
         win_con_credit = Child_window(aplly_credit.root, "Договор", 350, 250, 800, 350, "icon/apply_credit.ico")
         Label(win_con_credit.root, text="Подтвержение кредита", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
         user_card = Frame(win_con_credit.root)
@@ -362,25 +382,39 @@ class Company:
         Label(user_card, text="Номер карты:").pack(side=LEFT, padx=(0, 5))
         number_card = Entry(user_card)
         number_card.pack(pady=(2, 0))
+        Button(win_con_credit.root, text="Подтвердить кредит",command=lambda: self.confirm_credit1(win_con_credit, number_card, sum_credit, month)).pack()  
+        win_con_credit.focus()
+    # TODO =============================================================================================
+    
+    def confirm_credit1(self, win=Child_window, number_card=Entry, summa=Entry, months=Combobox):
         if number_card.get() == "":
             messagebox.showwarning("Предупреждение", "Пустое поле!")
         else:
             if not self.is_number(number_card.get()):
                 messagebox.showwarning("Ошибка", "Не корректный в вод данных")
-            else:
+            else:   
                 try:
-                    self.card_database = sqlite3.connect("clients.db")
+                    self.card_database = sqlite3.connect("cards.db")
                     self.card_cursor = self.card_database.cursor()
-                    
+                    self.card_cursor.execute("SELECT balanse FROM users_cards WHERE number_card = ?", [int(number_card.get())])
+                    if not self.card_cursor.fetchone():
+                        messagebox.showwarning("Запрос не найден", "Карта с таким номером не найдена!")
+                    else:
+                        if messagebox.askokcancel("Важно", "Отменить операцию будет нельзя!"):
+                            how_months = int(months.get()[0])
+                            percent_one_day = (float(summa.get()) * 2) / 100
+                            sum_for_use_credit = percent_one_day * (how_months * 30)
+                            self.user.set_credit_days(months.get())
+                            self.user.set_sum_use_credit(sum_for_use_credit)
+                            self.user.set_credit(float(summa.get()))
+                           
+                            messagebox.showinfo("Успех", "Успех")
                 except sqlite3.Error as er:
                     print(er.with_traceback())
                     messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
                 finally:
                     self.card_cursor.close()
                     self.card_database.close()
-            
-        win_con_credit.focus()
-    # TODO =============================================================================================
     
     def info_about_credit(self):
         info_credit = """Минмальная сумма кредита - 600 грн.
