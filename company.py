@@ -1,8 +1,6 @@
-from cgitb import text
-from tkinter import font
-from turtle import right
+from random import randint
 
-from scipy.__config__ import show
+from numpy import number
 from window import Window
 from tkinter import *
 from tkinter.ttk import Combobox
@@ -20,6 +18,7 @@ class Company:
         self.clientt = Client()
         self.database = sqlite3.connect("clients.db")
         self.cursor = self.database.cursor()
+        
         self.user = Client()
         # TODO: В будущем добавить баланс пользователя скорей всего это будет карта которую он сможет окрыть
         query = """CREATE TABLE IF NOT EXISTS users (
@@ -42,6 +41,16 @@ class Company:
         self.database.commit()
         self.cursor.close()
         self.database.close()
+        self.card_database = sqlite3.connect("cards.db")
+        self.card_cursor = self.card_database.cursor()
+        card_query = f"""CREATE TABLE IF NOT EXISTS users_cards (
+        number_card INT,
+        balanse FLOAT NOT NULL DEFAULT {randint(2000, 30000)}
+        )"""
+        self.card_database.execute(card_query)
+        self.card_database.commit()
+        self.card_cursor.close()
+        self.card_database.close()
 
     def run(self):
         self.main_win_fidgets()
@@ -342,8 +351,36 @@ class Company:
             days.pack()
             Button(frame_about_credit, text="О кредите", command=self.info_about_credit, font=("", 12)).pack(side=LEFT, padx=(0, 5), pady=(25, 0))
             Button(frame_about_credit, text="Расчёты", command=lambda: self.count_sum_credit(sum_credit, days, aplly_credit), font=("", 12)).pack(padx=(5, 0), pady=(25, 0))
-            Button(aplly_credit.root, text="Оформить кредит", font=("", 12)).pack(padx=(5, 0), pady=(15, 0))
+            Button(aplly_credit.root, text="Оформить кредит", command=lambda: self.confirm_credit(aplly_credit), font=("", 12)).pack(padx=(5, 0), pady=(15, 0))
             Button(aplly_credit.root, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(aplly_credit, client_area_window, sum_credit)).pack(padx=(5, 0), pady=(15, 0))
+    # TODO =============================================================================================
+    def confirm_credit(self, aplly_credit):
+        win_con_credit = Child_window(aplly_credit.root, "Договор", 350, 250, 800, 350, "icon/apply_credit.ico")
+        Label(win_con_credit.root, text="Подтвержение кредита", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
+        user_card = Frame(win_con_credit.root)
+        user_card.pack()
+        Label(user_card, text="Номер карты:").pack(side=LEFT, padx=(0, 5))
+        number_card = Entry(user_card)
+        number_card.pack(pady=(2, 0))
+        if number_card.get() == "":
+            messagebox.showwarning("Предупреждение", "Пустое поле!")
+        else:
+            if not self.is_number(number_card.get()):
+                messagebox.showwarning("Ошибка", "Не корректный в вод данных")
+            else:
+                try:
+                    self.card_database = sqlite3.connect("clients.db")
+                    self.card_cursor = self.card_database.cursor()
+                    
+                except sqlite3.Error as er:
+                    print(er.with_traceback())
+                    messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+                finally:
+                    self.card_cursor.close()
+                    self.card_database.close()
+            
+        win_con_credit.focus()
+    # TODO =============================================================================================
     
     def info_about_credit(self):
         info_credit = """Минмальная сумма кредита - 600 грн.
@@ -539,10 +576,17 @@ class Company:
                     self.cursor.execute(f"SELECT phone FROM users WHERE phone = '{user_phone}'")
                     if self.cursor.fetchone() is None:
                         values = [fname.get(), lname.get(), email.get(), password.get(), "+380" + phone.get(), int(age.get())]
-                        self.cursor.execute("INSERT INTO users(first_name, last_name, email, password, phone, age) VALUES( ?, ?, ?, md5(?), ?, ?)", values)
+                        self.cursor.execute("INSERT INTO users(first_name, last_name, email, password, phone, age) VALUES(?, ?, ?, md5(?), ?, ?)", values)
                         self.database.commit()
                         messagebox.showinfo("Успех", "Поздравляю вы зарегистрировались!")
+                        self.card_database = sqlite3.connect("cards.db")
+                        self.card_cursor = self.card_database.cursor()
+                        id = self.cursor.execute(f"SELECT id FROM users WHERE email = ?", [email.get()]).fetchone()[0]
+                        self.card_cursor.execute(f"INSERT INTO users_cards(number_card) VALUES(?)",[id])
                         self.clear(fname, lname, email, password, repeat_password, phone, age)
+                        self.card_database.commit()
+                        self.card_cursor.close()
+                        self.card_database.close()
                     else:
                         messagebox.showerror("Предупреждение", "Такай номер телефона уже зарегистрирован!")
                 else:
