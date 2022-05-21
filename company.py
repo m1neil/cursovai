@@ -43,8 +43,8 @@ class Company:
         self.card_database = sqlite3.connect("cards.db")
         self.card_cursor = self.card_database.cursor()
         card_query = f"""CREATE TABLE IF NOT EXISTS users_cards (
-        number_card INT,
-        balanse FLOAT NOT NULL DEFAULT {randint(2000, 30000)}
+            number_card INT,
+            alanse FLOAT NOT NULL DEFAULT {randint(2000, 30000)}
         )"""
         self.card_database.execute(card_query)
         self.card_database.commit()
@@ -186,7 +186,7 @@ class Company:
         exit_account.pack()
         Label(main_title_frame, text="Личный кабинет", relief=RAISED, bd=3, font=("", 18), padx=30).pack(side=LEFT, pady=(30, 35))  # Заголовок
         Button(user_profile_frame, text="Профиль", font=("", 12), command=lambda: self.profile(client_area_window)).pack(side=LEFT, pady=(0, 5))
-        Button(credit_frame, text="Оформить кредит", command=lambda: self.apply_for_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
+        Button(credit_frame, text="Кредитный отдел", command=lambda: self.apply_for_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
         Button(return_credit, text="Вернуть кредит", command=self.return_credit, font=("", 12)).pack(side=LEFT, pady=(0, 5))
         Button(exit_account, text="Выйти из аккаунта", command=self.exit_account, font=("", 12)).pack(side=LEFT)
 
@@ -315,7 +315,6 @@ class Company:
 
     # TODO::+=======================================================
     def apply_for_credit(self, client_area_window=Child_window):
-
         aplly_credit = Child_window(client_area_window.root, "Оформление кредита", 500, 500, 800, 250, "icon/apply_credit.ico")
         aplly_credit.root.protocol(
             "WM_DELETE_WINDOW",
@@ -354,36 +353,39 @@ class Company:
             Button(aplly_credit.root, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(aplly_credit, client_area_window, sum_credit)).pack(padx=(5, 0), pady=(15, 0))
     # TODO =============================================================================================
     def confirm_credit(self, aplly_credit, sum_credit=Entry, month=Combobox):
-        if sum_credit.get() == "":
-                messagebox.showwarning("Пустое поле!")
-                return
-        else:  
-            if not self.is_number(sum_credit.get()):
-                messagebox.showwarning("Предупреждение", "Не корректный в вод данных!")
-                return
-            else:
-                summa = float(sum_credit.get())  
-                if summa < 600:
-                    messagebox.showwarning("Предупреждение", "Минимальная сумма 600 гнр.")
+        if self.user.get_credit() > 0:
+            messagebox.showinfo("Кредит", "У вас есть не погашенный кредит!")
+        else:
+            if sum_credit.get() == "":
+                    messagebox.showwarning("Предупреждение", "Пустое поле!")
                     return
-                elif summa > 15000 and self.user.get_regula_client() == 0:
-                    messagebox.showwarning(
-                        "Клиенту",
-                        "Вы не постоянный клиент, вам разрешена сумма до 15 000 грн.\nПогасив кредит, вы станете постоянным клиетом и сможете оформить следующий кредит до 25 000 грн.",
-                    )
+            else:  
+                if not self.is_number(sum_credit.get()):
+                    messagebox.showwarning("Предупреждение", "Не корректный в вод данных!")
                     return
-                elif summa > 25000 and self.user.get_regula_client() == 1:
-                    messagebox.showwarning("Клиенту", "Наша компания выдает кредит максимально до 25 000 грн.")
-                    return
-        win_con_credit = Child_window(aplly_credit.root, "Договор", 350, 250, 800, 350, "icon/apply_credit.ico")
-        Label(win_con_credit.root, text="Подтвержение кредита", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
-        user_card = Frame(win_con_credit.root)
-        user_card.pack()
-        Label(user_card, text="Номер карты:").pack(side=LEFT, padx=(0, 5))
-        number_card = Entry(user_card)
-        number_card.pack(pady=(2, 0))
-        Button(win_con_credit.root, text="Подтвердить кредит",command=lambda: self.confirm_credit1(win_con_credit, number_card, sum_credit, month)).pack()  
-        win_con_credit.focus()
+                else:
+                    summa = float(sum_credit.get())  
+                    if summa < 600:
+                        messagebox.showwarning("Предупреждение", "Минимальная сумма 600 гнр.")
+                        return
+                    elif summa > 15000 and self.user.get_regula_client() == 0:
+                        messagebox.showwarning(
+                            "Клиенту",
+                            "Вы не постоянный клиент, вам разрешена сумма до 15 000 грн.\nПогасив кредит, вы станете постоянным клиетом и сможете оформить следующий кредит до 25 000 грн.",
+                        )
+                        return
+                    elif summa > 25000 and self.user.get_regula_client() == 1:
+                        messagebox.showwarning("Клиенту", "Наша компания выдает кредит максимально до 25 000 грн.")
+                        return
+            win_con_credit = Child_window(aplly_credit.root, "Договор", 350, 250, 800, 350, "icon/apply_credit.ico")
+            Label(win_con_credit.root, text="Подтвержение кредита", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
+            user_card = Frame(win_con_credit.root)
+            user_card.pack()
+            Label(user_card, text="Номер карты:").pack(side=LEFT, padx=(0, 5))
+            number_card = Entry(user_card)
+            number_card.pack(pady=(2, 0))
+            Button(win_con_credit.root, text="Подтвердить кредит",command=lambda: self.confirm_credit1(win_con_credit, number_card, sum_credit, month)).pack()  
+            win_con_credit.focus()
     # TODO =============================================================================================
     
     def confirm_credit1(self, win=Child_window, number_card=Entry, summa=Entry, months=Combobox):
@@ -396,6 +398,8 @@ class Company:
                 try:
                     self.card_database = sqlite3.connect("cards.db")
                     self.card_cursor = self.card_database.cursor()
+                    self.database = sqlite3.connect("clients.db")
+                    self.cursor = self.database.cursor()
                     self.card_cursor.execute("SELECT balanse FROM users_cards WHERE number_card = ?", [int(number_card.get())])
                     if not self.card_cursor.fetchone():
                         messagebox.showwarning("Запрос не найден", "Карта с таким номером не найдена!")
@@ -407,7 +411,10 @@ class Company:
                             self.user.set_credit_days(months.get())
                             self.user.set_sum_use_credit(sum_for_use_credit)
                             self.user.set_credit(float(summa.get()))
-                           
+                            self.card_cursor.execute("UPDATE users_cards SET balanse = balanse + ? WHERE number_card = ?", [float(summa.get()), int(number_card.get())])
+                            self.cursor.execute("UPDATE users SET credit = ?, sum_use_credit = ?, credit_days = ? WHERE id = ?", [self.user.get_credit(), self.user.get_sum_user_credit(), months.get(), self.user.get_id()])
+                            self.card_database.commit()
+                            self.database.commit()
                             messagebox.showinfo("Успех", "Успех")
                 except sqlite3.Error as er:
                     print(er.with_traceback())
@@ -415,7 +422,9 @@ class Company:
                 finally:
                     self.card_cursor.close()
                     self.card_database.close()
-    
+                    self.cursor.close()
+                    self.database.close()
+                    
     def info_about_credit(self):
         info_credit = """Минмальная сумма кредита - 600 грн.
 Максимальная сумма кредита - 15 000 грн для не постоянного клиента.
