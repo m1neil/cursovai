@@ -200,6 +200,10 @@ class Company:
         about_client.pack()
         info_about_work = Frame(profile.root)
         info_about_work.pack()
+        credit_frame = Frame(profile.root)
+        credit_frame.pack()
+        exit_this_win = Frame(profile.root)
+        exit_this_win.pack()
         Label(main_title_frame, text="Профиль", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(20, 15)) # Заголовок
         Label(about_client, text=f"ФИО: {self.user.get_lname()}, {self.user.get_fname()}\n"
             +f"Возраст: {self.user.get_age()}\n"
@@ -209,16 +213,16 @@ class Company:
             +f"Должность: {self.user.get_work_position()}\n"
             +f"Зарплата: {self.user.get_salary()} грн.",
             font=("", 12, "bold"), justify=LEFT).pack()
-        
-        # Label(credit_frame, text=f"Сумма кредита: {self.user.get_credit()} грн, Срок кредита: {self.user.get_credit_days()}", font=("", 12, "bold")).pack(
-        #     side=LEFT, padx=(3, 7), pady=(0, 15)
-        # )
-        # Button(
-        #     input_data_frame, text="Нажми, чтобы заполнить\n дополнительные данные", font=("", 12), command=lambda: self.additional_information_window(profile, client_area_window)
-        # ).pack(side=LEFT, pady=(10, 0))
-        # Button(back_to_client_area_frame, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
-        #     side=LEFT, padx=(0, 310), pady=(40, 0)
-        # )
+        text = ""
+        if self.user.get_credit() != 0:
+            text = f"Взят кредит на сумму: {self.user.get_credit()} грн\n"+f"Срок кредита: {self.user.get_credit_days()}"
+        else:
+            text = "Кредит не оформлен!"
+        credit = Label(credit_frame, text=text, justify=LEFT, font=("", 12, "bold"))
+        credit.pack()
+        Button(exit_this_win, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
+            side=LEFT, padx=(0, 310), pady=(40, 0)
+        )
 
     def close_and_show_another_window(self, close, show):
         close.root.destroy()
