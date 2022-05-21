@@ -369,6 +369,10 @@ class Company:
                     return
                 else:
                     summa = float(sum_credit.get())  
+                    how_months = int(month.get()[0])
+                    percent_one_day = (float(summa) * 2) / 100
+                    sum_for_use_credit = percent_one_day * (how_months * 30)
+                    total = summa + sum_for_use_credit
                     if summa < 600:
                         messagebox.showwarning("Предупреждение", "Минимальная сумма 600 гнр.")
                         return
@@ -381,6 +385,9 @@ class Company:
                     elif summa > 25000 and self.user.get_regula_client() == 1:
                         messagebox.showwarning("Клиенту", "Наша компания выдает кредит максимально до 25 000 грн.")
                         return
+                    elif total > self.user.get_salary() * how_months:
+                        messagebox.showwarning("Средства", "Ваша зарплата не способна погасить кредит выберите меньшую сумму.")
+                        return
             win_con_credit = Child_window(aplly_credit.root, "Договор", 350, 250, 800, 350, "icon/apply_credit.ico")
             Label(win_con_credit.root, text="Подтвержение кредита", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
             user_card = Frame(win_con_credit.root)
@@ -388,7 +395,7 @@ class Company:
             Label(user_card, text="Номер карты:").pack(side=LEFT, padx=(0, 5))
             number_card = Entry(user_card)
             number_card.pack(pady=(2, 0))
-            Button(win_con_credit.root, text="Подтвердить кредит",command=lambda: self.confirm_credit1(win_con_credit, number_card, sum_credit, month)).pack()  
+            Button(win_con_credit.root, text="Подтвердить кредит",command=lambda: self.confirm_credit1(win_con_credit, number_card, sum_credit, month)).pack(pady=(10, 0))  
             win_con_credit.focus()
     # TODO =============================================================================================
     
