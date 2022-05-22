@@ -46,7 +46,7 @@ class Company:
         self.card_cursor = self.card_database.cursor()
         card_query = f"""CREATE TABLE IF NOT EXISTS users_cards (
             number_card INT,
-            alanse FLOAT NOT NULL DEFAULT {randint(2000, 30000)},
+            balanse FLOAT NOT NULL DEFAULT {randint(2000, 30000)},
             password INT NOT NULL DEFAULT {randint(1000, 10000)}
         )"""
         self.card_database.execute(card_query)
@@ -247,6 +247,8 @@ class Company:
             side=LEFT, padx=(0,5), pady=(40, 0)
         )
         Button(exit_this_win, text="Инфо. о карте", font=("", 12), command=lambda: self.info_about_card(profile)).pack(padx=(5, 0), pady=(40, 0)
+        )
+        Button(exit_this_win, text="Баланс на карте", font=("", 12), command=lambda: self.info_about_balance_card(profile)).pack(padx=(5, 0), pady=(40, 0)
         )
         
     def info_about_card(self, profile=Child_window):
