@@ -1,5 +1,7 @@
 
 from random import randint
+
+from numpy import number
 from window import Window
 from tkinter import *
 from tkinter.ttk import Combobox
@@ -44,7 +46,8 @@ class Company:
         self.card_cursor = self.card_database.cursor()
         card_query = f"""CREATE TABLE IF NOT EXISTS users_cards (
             number_card INT,
-            alanse FLOAT NOT NULL DEFAULT {randint(2000, 30000)}
+            alanse FLOAT NOT NULL DEFAULT {randint(2000, 30000)},
+            password INT NOT NULL DEFAULT {randint(1000, 10000)}
         )"""
         self.card_database.execute(card_query)
         self.card_database.commit()
@@ -99,7 +102,7 @@ class Company:
     # ! Не забудь отменить что внутри этой свернутой функции пжжжжжжжж я тебя умоляю
     def check_input_data(self, input_phone_or_email=Entry, input_password=Entry, child_window=Child_window):
         examination = True  #! Изменить на False
-        user_id = 3  #! Изменить на None
+        user_id = 1  #! Изменить на None
         # if input_phone_or_email.get() != "":
         #     if input_password.get() != "":
         #         try:
@@ -203,6 +206,7 @@ class Company:
                 profile.root.withdraw()
                 self.additional_information_window(profile, client_area_window)
                 profile.root.destroy()
+                return
             else:
                 self.close_and_show_another_window(profile, client_area_window)
                 return
@@ -240,8 +244,28 @@ class Company:
         credit = Label(credit_frame, text=text, justify=LEFT, font=("", 12, "bold"))
         credit.pack()
         Button(exit_this_win, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
-            side=LEFT, padx=(0, 310), pady=(40, 0)
+            side=LEFT, padx=(0,5), pady=(40, 0)
         )
+        Button(exit_this_win, text="Инфо. о карте", font=("", 12), command=lambda: self.info_about_card(profile)).pack(padx=(5, 0), pady=(40, 0)
+        )
+        
+    def info_about_card(self, profile=Child_window):
+        win_info_card = Child_window(profile.root, "Инфо. о карте", 250, 170, 800, 350, "icon/credit.ico")
+        try:
+            self.card_database = sqlite3.connect("cards.db")
+            self.card_cursor = self.card_database.cursor()
+            number_card = self.card_cursor.execute("SELECT number_card FROM users_cards WHERE number_card = ?", [self.user.get_id()]).fetchone()[0]
+            password_card = self.card_cursor.execute("SELECT password FROM users_cards WHERE number_card = ?", [self.user.get_id()]).fetchone()[0]
+            Label(win_info_card.root, text="Карта", relief=RAISED, bd=3, font=("", 14), padx=30).pack(pady=(20, 15))  # Заголовок
+            Label(win_info_card.root, text=f"Номер карты: {number_card}", font=("", 10), padx=30).pack(pady=(0, 5))
+            Label(win_info_card.root, text=f"Пароль: {password_card}", font=("", 10), padx=30).pack(pady=(0, 10))
+            Button(win_info_card.root, text="ОК", command=lambda:self.simple_close_window(win_info_card)).pack()   
+        except sqlite3.Error as er:
+            print(er.with_traceback())
+            messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+        finally:
+            self.card_cursor.close()
+            self.card_database.close()
 
     def close_and_show_another_window(self, close, show, frame_clear=Entry):
         if type(frame_clear) == Entry: 
@@ -611,7 +635,6 @@ class Company:
             # =====================================
             # check age
             str_age = age.get()
-            print("age type", type(str_age))
             for val in str_age:
                 if not (val in validSymbols):
                     messagebox.showerror("Ошибка", "Введены не корректные данные!")
