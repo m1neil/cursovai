@@ -14,6 +14,8 @@ class Client:
         self._sum_use_credit = 0.0
         self._credit_days = (0,)
         self._regular_client = 0
+        self._number_card = None
+        self._password_card = None
 
     # get
 
@@ -55,7 +57,13 @@ class Client:
     
     def get_regula_client(self):
         return self._regular_client
-
+    
+    def get_number_card(self):
+        return self._number_card
+    
+    def get_password_card(self):
+        return self._password_card
+    
     # set
     def set_id(self, user_id):
         self._id = user_id
@@ -98,3 +106,10 @@ class Client:
 
     def set_regula_client(self, yes_or_no):
         self._regular_client = yes_or_no
+        
+    def set_number_card(self, number_card):
+        self._number_card = number_card
+    
+    def set_password_card(self, password_card):
+        self._password_card = password_card
+        

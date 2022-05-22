@@ -1,4 +1,4 @@
-
+from ast import Lambda
 from random import randint
 
 from numpy import number
@@ -19,7 +19,7 @@ class Company:
         self.clientt = Client()
         self.database = sqlite3.connect("clients.db")
         self.cursor = self.database.cursor()
-        
+
         self.user = Client()
         # TODO: В будущем добавить баланс пользователя скорей всего это будет карта которую он сможет окрыть
         query = """CREATE TABLE IF NOT EXISTS users (
@@ -244,13 +244,71 @@ class Company:
         credit = Label(credit_frame, text=text, justify=LEFT, font=("", 12, "bold"))
         credit.pack()
         Button(exit_this_win, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
-            side=LEFT, padx=(0,5), pady=(40, 0)
+            side=LEFT, padx=(0, 5), pady=(40, 0)
         )
-        Button(exit_this_win, text="Инфо. о карте", font=("", 12), command=lambda: self.info_about_card(profile)).pack(padx=(5, 0), pady=(40, 0)
-        )
-        Button(exit_this_win, text="Баланс на карте", font=("", 12), command=lambda: self.info_about_balance_card(profile)).pack(padx=(5, 0), pady=(40, 0)
-        )
-        
+        Button(exit_this_win, text="Инфо. о карте", font=("", 12), command=lambda: self.info_about_card(profile)).pack(side=LEFT, padx=(5, 5), pady=(40, 0))
+        Button(exit_this_win, text="Баланс на карте", font=("", 12), command=lambda: self.info_about_balanse_card(profile)).pack(padx=(5, 0), pady=(40, 0))
+
+    def info_about_balanse_card(self, profile=ChildProcessError):
+        info_about_balanse_card = Child_window(profile.root, "Баланс на карте", 250, 300, 800, 350, "icon/credit.ico")
+        frame_main_title = Frame(info_about_balanse_card.root)
+        frame_main_title.pack()
+        frame_number_card = Frame(info_about_balanse_card.root)
+        frame_number_card.pack(pady=(0, 10))
+        frame_password_card = Frame(info_about_balanse_card.root)
+        frame_password_card.pack()
+        frame_balanse_card = Frame(info_about_balanse_card.root)
+        frame_balanse_card.pack()
+        Label(frame_main_title, text="Баланс", relief=RAISED, bd=3, font=("", 14), padx=30).pack(pady=(20, 15))  # Заголовок
+        Label(frame_number_card, text=f"Номер карты:", font=("", 10), padx=30).pack(pady=(0, 5))
+        number_card = Entry(frame_number_card)
+        number_card.pack()
+        Label(frame_password_card, text=f"Пароль:", font=("", 10), padx=30).pack(pady=(0, 5))
+        password_card = Entry(frame_password_card)
+        password_card.pack()
+        label_balanse = Label()
+        balanse = "Нажмите кнопу посмотреть"
+        if self.user.get_number_card() != None:
+            number_card.insert(0, self.user.get_number_card())
+            password_card.insert(0, self.user.get_password_card())
+
+        label_balanse = Label(frame_balanse_card, text=f"Баланс: {balanse}")
+        label_balanse.pack(pady=(5, 5))
+        Button(info_about_balanse_card.root, text="Посмотреть баланс", command=lambda: self.show_balanse(label_balanse, number_card, password_card)).pack(pady=(0, 10))
+        Button(info_about_balanse_card.root, text="Закрыть окно", command=lambda: self.simple_close_window(info_about_balanse_card)).pack()
+
+    def show_balanse(self, label_balanse=Label, number_card=Entry, password_card=Entry):
+        if number_card.get() == "" or password_card.get() == "":
+            messagebox.showwarning("Предупреждение", "Пустые поля!")
+        else:
+            try:
+                self.card_database = sqlite3.connect("cards.db")
+                self.card_cursor = self.card_database.cursor()
+                if not self.is_number(number_card.get()) or not self.is_int(number_card.get()) or not self.is_number(password_card.get()) or not self.is_int(password_card.get()):
+                    messagebox.showwarning("Предупреждение", "Не корректные данные")
+                else:
+                    self.card_cursor.execute("SELECT number_card FROM users_cards WHERE number_card = ?", [int(number_card.get())])
+                    if self.card_cursor.fetchone() is None:
+                        messagebox.showerror("Предупреждение", "Такого номера карыт нет!")
+                    else:
+                        self.card_cursor.execute("SELECT password FROM users_cards WHERE number_card = ? AND password = ?", [int(number_card.get()), int(password_card.get())])
+                        if self.card_cursor.fetchone() is None:
+                            messagebox.showerror("Предупреждение", "Не верный пароль")
+                        else:
+                            self.user.set_number_card(int(number_card.get()))
+                            self.user.set_password_card(int(password_card.get()))
+                            balanse = self.card_cursor.execute(
+                                "SELECT balanse FROM users_cards WHERE number_card = ? AND password = ?", [int(number_card.get()), int(password_card.get())]
+                            ).fetchone()[0]
+                            money = f"Баланс на карте: {balanse} грн."
+                            label_balanse["text"] = money
+            except sqlite3.Error as er:
+                print(er.with_traceback())
+                messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+            finally:
+                self.card_cursor.close()
+                self.card_database.close()
+
     def info_about_card(self, profile=Child_window):
         win_info_card = Child_window(profile.root, "Инфо. о карте", 250, 170, 800, 350, "icon/credit.ico")
         try:
@@ -261,7 +319,7 @@ class Company:
             Label(win_info_card.root, text="Карта", relief=RAISED, bd=3, font=("", 14), padx=30).pack(pady=(20, 15))  # Заголовок
             Label(win_info_card.root, text=f"Номер карты: {number_card}", font=("", 10), padx=30).pack(pady=(0, 5))
             Label(win_info_card.root, text=f"Пароль: {password_card}", font=("", 10), padx=30).pack(pady=(0, 10))
-            Button(win_info_card.root, text="ОК", command=lambda:self.simple_close_window(win_info_card)).pack()   
+            Button(win_info_card.root, text="ОК", command=lambda: self.simple_close_window(win_info_card)).pack()
         except sqlite3.Error as er:
             print(er.with_traceback())
             messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
@@ -270,7 +328,7 @@ class Company:
             self.card_database.close()
 
     def close_and_show_another_window(self, close, show, frame_clear=Entry):
-        if type(frame_clear) == Entry: 
+        if type(frame_clear) == Entry:
             frame_clear.delete(0, END)
         show.root.deiconify()
         close.root.destroy()
@@ -340,6 +398,13 @@ class Company:
         except ValueError:
             return False
 
+    def is_int(self, str):
+        try:
+            int(str)
+            return True
+        except ValueError:
+            return False
+
     # TODO::+=======================================================
     def apply_for_credit(self, client_area_window=Child_window):
         aplly_credit = Child_window(client_area_window.root, "Оформление кредита", 500, 500, 800, 250, "icon/apply_credit.ico")
@@ -377,8 +442,10 @@ class Company:
             Button(frame_about_credit, text="О кредите", command=self.info_about_credit, font=("", 12)).pack(side=LEFT, padx=(0, 5), pady=(25, 0))
             Button(frame_about_credit, text="Расчёты", command=lambda: self.count_sum_credit(sum_credit, days, aplly_credit), font=("", 12)).pack(padx=(5, 0), pady=(25, 0))
             Button(aplly_credit.root, text="Оформить кредит", command=lambda: self.confirm_credit(aplly_credit, sum_credit, days), font=("", 12)).pack(padx=(5, 0), pady=(15, 0))
-            Button(aplly_credit.root, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(aplly_credit, client_area_window, sum_credit)).pack(padx=(5, 0), pady=(15, 0))
-    # TODO =============================================================================================
+            Button(
+                aplly_credit.root, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(aplly_credit, client_area_window, sum_credit)
+            ).pack(padx=(5, 0), pady=(15, 0))
+
     def confirm_credit(self, aplly_credit, sum_credit=Entry, month=Combobox):
         if self.user.get_work_place() == None:
             messagebox.showerror("Нету необходимых данных!", "Заполните данные в своём профиле!")
@@ -387,14 +454,14 @@ class Company:
             messagebox.showinfo("Кредит", "У вас есть не погашенный кредит!")
         else:
             if sum_credit.get() == "":
-                    messagebox.showwarning("Предупреждение", "Пустое поле!")
-                    return
-            else:  
+                messagebox.showwarning("Предупреждение", "Пустое поле!")
+                return
+            else:
                 if not self.is_number(sum_credit.get()):
                     messagebox.showwarning("Предупреждение", "Не корректный в вод данных!")
                     return
                 else:
-                    summa = float(sum_credit.get())  
+                    summa = float(sum_credit.get())
                     how_months = int(month.get()[0])
                     percent_one_day = (float(summa) * 2) / 100
                     sum_for_use_credit = percent_one_day * (how_months * 30)
@@ -421,17 +488,16 @@ class Company:
             Label(user_card, text="Номер карты:").pack(side=LEFT, padx=(0, 5))
             number_card = Entry(user_card)
             number_card.pack(pady=(2, 0))
-            Button(win_con_credit.root, text="Подтвердить кредит",command=lambda: self.confirm_credit1(win_con_credit, number_card, sum_credit, month)).pack(pady=(10, 0))  
+            Button(win_con_credit.root, text="Подтвердить кредит", command=lambda: self.confirm_credit1(win_con_credit, number_card, sum_credit, month)).pack(pady=(10, 0))
             win_con_credit.focus()
-    # TODO =============================================================================================
-    
+
     def confirm_credit1(self, win=Child_window, number_card=Entry, summa=Entry, months=Combobox):
         if number_card.get() == "":
             messagebox.showwarning("Предупреждение", "Пустое поле!")
         else:
-            if not self.is_number(number_card.get()):
+            if not self.is_number(number_card.get()) or not self.is_int(number_card.get()):
                 messagebox.showwarning("Ошибка", "Не корректный в вод данных")
-            else:   
+            else:
                 try:
                     self.card_database = sqlite3.connect("cards.db")
                     self.card_cursor = self.card_database.cursor()
@@ -449,7 +515,10 @@ class Company:
                             self.user.set_sum_use_credit(sum_for_use_credit)
                             self.user.set_credit(float(summa.get()))
                             self.card_cursor.execute("UPDATE users_cards SET balanse = balanse + ? WHERE number_card = ?", [float(summa.get()), int(number_card.get())])
-                            self.cursor.execute("UPDATE users SET credit = ?, sum_use_credit = ?, credit_days = ? WHERE id = ?", [self.user.get_credit(), self.user.get_sum_user_credit(), months.get(), self.user.get_id()])
+                            self.cursor.execute(
+                                "UPDATE users SET credit = ?, sum_use_credit = ?, credit_days = ? WHERE id = ?",
+                                [self.user.get_credit(), self.user.get_sum_user_credit(), months.get(), self.user.get_id()],
+                            )
                             self.card_database.commit()
                             self.database.commit()
                             messagebox.showinfo("Операция завершенна", "Вы получили деньги на свою карту!")
@@ -462,7 +531,7 @@ class Company:
                     self.card_database.close()
                     self.cursor.close()
                     self.database.close()
-                    
+
     def info_about_credit(self):
         info_credit = """Минмальная сумма кредита - 600 грн.
 Максимальная сумма кредита - 15 000 грн для не постоянного клиента.
@@ -662,7 +731,7 @@ class Company:
                         self.card_database = sqlite3.connect("cards.db")
                         self.card_cursor = self.card_database.cursor()
                         id = self.cursor.execute(f"SELECT id FROM users WHERE email = ?", [email.get()]).fetchone()[0]
-                        self.card_cursor.execute(f"INSERT INTO users_cards(number_card) VALUES(?)",[id])
+                        self.card_cursor.execute(f"INSERT INTO users_cards(number_card) VALUES(?)", [id])
                         self.clear(fname, lname, email, password, repeat_password, phone, age)
                         self.card_database.commit()
                         self.card_cursor.close()
