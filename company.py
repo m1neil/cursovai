@@ -77,8 +77,6 @@ class Company:
         font_size = 12
         Button(bottom_frame, text="Войти в аккаунт", command=self.comeInAccount, font=("", font_size)).pack(side=LEFT, padx=(0, 10))
         Button(bottom_frame, text="Регистарция", command=self.registration, font=("", font_size)).pack(side=LEFT)
-        # ! Потом убрать
-        # self.additional_information_window(self.window)
 
     def comeInAccount(self):
         comeInAcc = Child_window(self.window.root, "Вход в аккаунт", 500, 500, 700, 250, "icon/comeToAcc.ico")
@@ -109,53 +107,50 @@ class Company:
         Button(btn_submit_frame, text="Войти", font=("", 12), width=12, command=lambda: self.check_input_data(input_phone_or_email, input_password, comeInAcc)).pack(side=LEFT)
         comeInAcc.focus()
 
-    # ! Не забудь отменить что внутри этой свернутой функции пжжжжжжжж я тебя умоляю
     def check_input_data(self, input_phone_or_email=Entry, input_password=Entry, child_window=Child_window):
-        examination = True  #! Изменить на False
-        user_id = 1  #! Изменить на None
-        # if input_phone_or_email.get() != "":
-        #     if input_password.get() != "":
-        #         try:
-        #             self.database = sqlite3.connect("clients.db")
-        #             self.cursor = self.database.cursor()
-        #             self.database.create_function("md5", 1, self.md5sum)
-        #             email = ""
-        #             phone = ""
-        #             if input_phone_or_email.get()[0] == "+":
-        #                 self.cursor.execute("SELECT phone FROM users WHERE phone = ?", [input_phone_or_email.get()])
-        #                 phone = input_phone_or_email.get()
-        #             else:
-        #                 self.cursor.execute("SELECT email FROM users WHERE email = ?", [input_phone_or_email.get()])
-        #                 email = input_phone_or_email.get()
-        #             if self.cursor.fetchone() is None:
-        #                 messagebox.showwarning("Логин", "Такого логина не существует")
-        #             else:
-        #                 self.cursor.execute(
-        #                     "SELECT password FROM users WHERE email = ? AND password = md5(?) OR phone = ? AND password = md5(?)",
-        #                     [email, input_password.get(), phone, input_password.get()],
-        #                 )
-        #                 if self.cursor.fetchone() is None:
-        #                     messagebox.showwarning("Пароль", "Не верный пароль!")
-        #                 else:
-        #                     messagebox.showinfo("Успех", "Вы успешно вошли в свой аккаунт!")
-        #                     user_id = self.cursor.execute("SELECT id FROM users WHERE email = ? OR phone = ?", [email, phone]).fetchone()[0]
-        #                     examination = True
-        #         except sqlite3.Error as er:
-        #             print(er.with_traceback())
-        #             messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
-        #         finally:
-        #             self.cursor.close()
-        #             self.database.close()
-        #     else:
-        #         messagebox.showwarning("Пароль", "Введите пароль!")
-        # else:
-        #     messagebox.showwarning("Предупреждение", "Введите логин!")
+        examination = False  
+        user_id = None
+        if input_phone_or_email.get() != "":
+            if input_password.get() != "":
+                try:
+                    self.database = sqlite3.connect("clients.db")
+                    self.cursor = self.database.cursor()
+                    self.database.create_function("md5", 1, self.md5sum)
+                    email = ""
+                    phone = ""
+                    if input_phone_or_email.get()[0] == "+":
+                        self.cursor.execute("SELECT phone FROM users WHERE phone = ?", [input_phone_or_email.get()])
+                        phone = input_phone_or_email.get()
+                    else:
+                        self.cursor.execute("SELECT email FROM users WHERE email = ?", [input_phone_or_email.get()])
+                        email = input_phone_or_email.get()
+                    if self.cursor.fetchone() is None:
+                        messagebox.showwarning("Логин", "Такого логина не существует")
+                    else:
+                        self.cursor.execute(
+                            "SELECT password FROM users WHERE email = ? AND password = md5(?) OR phone = ? AND password = md5(?)",
+                            [email, input_password.get(), phone, input_password.get()],
+                        )
+                        if self.cursor.fetchone() is None:
+                            messagebox.showwarning("Пароль", "Не верный пароль!")
+                        else:
+                            messagebox.showinfo("Успех", "Вы успешно вошли в свой аккаунт!")
+                            user_id = self.cursor.execute("SELECT id FROM users WHERE email = ? OR phone = ?", [email, phone]).fetchone()[0]
+                            examination = True
+                except sqlite3.Error as er:
+                    print(er.with_traceback())
+                    messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+                finally:
+                    self.cursor.close()
+                    self.database.close()
+            else:
+                messagebox.showwarning("Пароль", "Введите пароль!")
+        else:
+            messagebox.showwarning("Предупреждение", "Введите логин!")
 
         if examination == True:
             self.simple_close_window(child_window)
             self.client_area(user_id)
-
-    # TODO: client area========================================================================================================================
 
     def client_area(self, user_id):
         try:
@@ -360,10 +355,11 @@ class Company:
         credit = Label(credit_frame, text=text, justify=LEFT, font=("", 12, "bold"))
         credit.pack()
         Button(exit_this_win, text="В личный кабинет", font=("", 12), command=lambda: self.close_and_show_another_window(profile, client_area_window)).pack(
-            side=LEFT, padx=(0, 5), pady=(40, 0)
+            side=LEFT, padx=(0, 5), pady=(40, 15)
         )
-        Button(exit_this_win, text="Инфо. о карте", font=("", 12), command=lambda: self.info_about_card(profile)).pack(side=LEFT, padx=(5, 5), pady=(40, 0))
-        Button(exit_this_win, text="Баланс на карте", font=("", 12), command=lambda: self.info_about_balanse_card(profile)).pack(padx=(5, 0), pady=(40, 0))
+        Button(exit_this_win, text="Инфо. о карте", font=("", 12), command=lambda: self.info_about_card(profile)).pack(side=LEFT, padx=(5, 5), pady=(40, 15))
+        Button(exit_this_win, text="Баланс на карте", font=("", 12), command=lambda: self.info_about_balanse_card(profile)).pack(padx=(5, 0), pady=(40, 15))
+        Button(profile.root, text="Выйти из аккаунта", font=("", 12), command=lambda:self.exit_account(profile, client_area_window)).pack()
 
     def info_about_balanse_card(self, profile=ChildProcessError):
         info_about_balanse_card = Child_window(profile.root, "Баланс на карте", 250, 300, 800, 350, "icon/credit.ico")
@@ -709,7 +705,10 @@ class Company:
             messagebox.showwarning("Предупреждение", "Пустое поле!")
             return
 
-    def exit_account(self, client_area_window=Child_window):
+    def exit_account(self, profile=Child_window, client_area_window=Child_window):
+        self.simple_close_window(profile)
+        self.simple_close_window(client_area_window)
+        self.window.root.deiconify()
         pass
 
     def registration(self):
