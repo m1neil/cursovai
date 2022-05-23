@@ -1,7 +1,5 @@
-from ast import Lambda
-from random import randint
 
-from numpy import number
+from random import randint
 from window import Window
 from tkinter import *
 from tkinter.ttk import Combobox
@@ -19,7 +17,6 @@ class Company:
         self.clientt = Client()
         self.database = sqlite3.connect("clients.db")
         self.cursor = self.database.cursor()
-
         self.user = Client()
         # TODO: В будущем добавить баланс пользователя скорей всего это будет карта которую он сможет окрыть
         query = """CREATE TABLE IF NOT EXISTS users (
@@ -53,6 +50,18 @@ class Company:
         self.card_database.commit()
         self.card_cursor.close()
         self.card_database.close()
+        
+        self.credittime_money_db = sqlite3.connect("creditTime.db")
+        self.creditTime_cursor = self.credittime_money_db.cursor()
+        self.credittime_money_db.execute(f"""CREATE TABLE IF NOT EXISTS creditTime (
+            login VARCHAR,
+            balanse FLOAT NOT NULL DEFAULT {randint(50000, 200000)}
+        )""")
+        self.creditTime_cursor.execute(f"INSERT INTO creditTime(login) VALUES(?)", ["admin"])
+        self.credittime_money_db.commit()
+        self.creditTime_cursor.close()
+        self.credittime_money_db.close()
+        
 
     def run(self):
         self.main_win_fidgets()
@@ -190,8 +199,36 @@ class Company:
         Label(main_title_frame, text="Личный кабинет", relief=RAISED, bd=3, font=("", 18), padx=30).pack(side=LEFT, pady=(30, 35))  # Заголовок
         Button(user_profile_frame, text="Профиль", font=("", 12), command=lambda: self.profile(client_area_window)).pack(side=LEFT, pady=(0, 5))
         Button(credit_frame, text="Кредитный отдел", command=lambda: self.apply_for_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
-        Button(return_credit, text="Вернуть кредит", command=self.return_credit, font=("", 12)).pack(side=LEFT, pady=(0, 5))
+        Button(return_credit, text="Вернуть кредит", command=lambda: self.return_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
         Button(exit_account, text="Выйти из аккаунта", command=self.exit_account, font=("", 12)).pack(side=LEFT)
+        
+    def return_credit(self, client_area_window=Child_window):
+        if self.user.get_credit() == 0:
+            messagebox.showinfo("Кредит", "У вас нету занятого кредита!")
+            return
+        win_return_credit = Child_window(client_area_window.root, "Возврат кредита", 600, 300, 800, 250, "icon/apply_credit.ico")
+        frame_main_title = Frame(win_return_credit.root)
+        frame_main_title.pack()
+        frame_return_credit = Frame(win_return_credit.root)
+        frame_return_credit.pack()
+        frame_btn = Frame(win_return_credit.root)
+        frame_btn.pack()
+        try:
+            self.card_database = sqlite3.connect("cards.db")
+            self.card_cursor = self.card_database.cursor()
+            Label(frame_main_title, text="Возврат кредита", relief=RAISED, bd=3, font=("", 18), padx=30).pack(pady=(30, 20))
+            Label(frame_return_credit, text=f"Вам нужно вернуть сумму занятого креда в размере: {self.user.get_credit()} грн.\n"
+                  +f"И также сумму за использование этого кредита в размере {self.user.get_sum_use_credit()} грн.\n"
+                  +f"Итоговая сумма - {self.user.get_credit() + self.user.get_sum_use_credit()} грн.\n"
+                  +f"Срок кредита - {self.user.get_credit_days()}\n", justify=LEFT, font=("", 11)).pack(pady=(0,0))
+            Button(frame_btn, text="Вернуть кредит", command=lambda: self.pay_credit(win_return_credit), font=("", 10)).pack(side=LEFT)  
+        except sqlite3.Error as er:
+            print(er.with_traceback())
+            messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+        finally:
+            self.card_cursor.close()
+            self.card_database.close()
+        win_return_credit.focus()
 
     # TODO: User Profile ========================================================================================================================
     def profile(self, client_area_window=Child_window):
@@ -210,8 +247,6 @@ class Company:
             else:
                 self.close_and_show_another_window(profile, client_area_window)
                 return
-        # else:
-        #     #! Що це таке? И главное на хера я это сделал?
 
         main_title_frame = Frame(profile.root)
         main_title_frame.pack()
@@ -517,7 +552,7 @@ class Company:
                             self.card_cursor.execute("UPDATE users_cards SET balanse = balanse + ? WHERE number_card = ?", [float(summa.get()), int(number_card.get())])
                             self.cursor.execute(
                                 "UPDATE users SET credit = ?, sum_use_credit = ?, credit_days = ? WHERE id = ?",
-                                [self.user.get_credit(), self.user.get_sum_user_credit(), months.get(), self.user.get_id()],
+                                [self.user.get_credit(), self.user.get_sum_use_credit(), months.get(), self.user.get_id()],
                             )
                             self.card_database.commit()
                             self.database.commit()
@@ -592,9 +627,6 @@ class Company:
         else:
             messagebox.showwarning("Предупреждение", "Пустое поле!")
             return
-
-    def return_credit(self, client_area_window=Child_window):
-        pass
 
     def exit_account(self, client_area_window=Child_window):
         pass

@@ -49,7 +49,7 @@ class Client:
     def get_credit(self):
         return self._credit
 
-    def get_sum_user_credit(self):
+    def get_sum_use_credit(self):
         return self._sum_use_credit
 
     def get_credit_days(self):
