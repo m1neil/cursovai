@@ -201,7 +201,7 @@ class Company:
         Button(user_profile_frame, text="Профиль", font=("", 12), command=lambda: self.profile(client_area_window)).pack(side=LEFT, pady=(0, 5))
         Button(credit_frame, text="Кредитный отдел", command=lambda: self.apply_for_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
         Button(return_credit, text="Вернуть кредит", command=lambda: self.return_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
-        Button(exit_account, text="Выйти из аккаунта", command=self.exit_account, font=("", 12)).pack(side=LEFT)
+        Button(exit_account, text="Выйти из приложения", command=lambda:self.exit(client_area_window, "Закрыть приложение?"), font=("", 12)).pack(side=LEFT)
         
     def return_credit(self, client_area_window=Child_window):
         if self.user.get_credit() == 0:
