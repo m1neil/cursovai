@@ -1,4 +1,3 @@
-
 from random import randint
 from window import Window
 from tkinter import *
@@ -41,10 +40,10 @@ class Company:
         self.database.close()
         self.card_database = sqlite3.connect("cards.db")
         self.card_cursor = self.card_database.cursor()
-        card_query = f"""CREATE TABLE IF NOT EXISTS users_cards (
+        card_query = """CREATE TABLE IF NOT EXISTS users_cards (
             number_card INT,
-            balanse FLOAT NOT NULL DEFAULT {randint(2000, 30000)},
-            password INT NOT NULL DEFAULT {randint(1000, 10000)}
+            balanse FLOAT,
+            password INT
         )"""
         self.card_database.execute(card_query)
         self.card_database.commit()
@@ -57,7 +56,9 @@ class Company:
             login VARCHAR,
             balanse FLOAT NOT NULL DEFAULT {randint(50000, 200000)}
         )""")
-        self.creditTime_cursor.execute(f"INSERT INTO creditTime(login) VALUES(?)", ["admin"])
+        self.creditTime_cursor.execute("SELECT login FROM creditTime WHERE login = ?", ["admin"])
+        if self.creditTime_cursor.fetchone() is None:
+            self.creditTime_cursor.execute(f"INSERT INTO creditTime(login) VALUES(?)", ["admin"])
         self.credittime_money_db.commit()
         self.creditTime_cursor.close()
         self.credittime_money_db.close()
@@ -206,7 +207,7 @@ class Company:
         if self.user.get_credit() == 0:
             messagebox.showinfo("Кредит", "У вас нету занятого кредита!")
             return
-        win_return_credit = Child_window(client_area_window.root, "Возврат кредита", 600, 300, 800, 250, "icon/apply_credit.ico")
+        win_return_credit = Child_window(client_area_window.root, "Возврат кредита", 600, 230, 800, 250, "icon/apply_credit.ico")
         frame_main_title = Frame(win_return_credit.root)
         frame_main_title.pack()
         frame_return_credit = Frame(win_return_credit.root)
@@ -229,7 +230,87 @@ class Company:
             self.card_cursor.close()
             self.card_database.close()
         win_return_credit.focus()
-
+        
+    def pay_credit(self, win_return_credit=Child_window):
+        win_pay_credit = Child_window(win_return_credit.root, "Оплата", 250, 220, 800, 350, "icon/credit.ico")
+        frame_main_title = Frame(win_pay_credit.root)
+        frame_main_title.pack()
+        frame_number_card = Frame(win_pay_credit.root)
+        frame_number_card.pack(pady=(0, 10))
+        frame_password_card = Frame(win_pay_credit.root)
+        frame_password_card.pack()
+        frame_balanse_card = Frame(win_pay_credit.root)
+        frame_balanse_card.pack()
+        Label(frame_main_title, text="Карта", relief=RAISED, bd=3, font=("", 14), padx=30).pack(pady=(20, 15))  # Заголовок
+        Label(frame_number_card, text=f"Номер карты:", font=("", 10), padx=30).pack(pady=(0, 5))
+        number_card = Entry(frame_number_card)
+        number_card.pack()
+        Label(frame_password_card, text=f"Пароль:", font=("", 10), padx=30).pack(pady=(0, 5))
+        password_card = Entry(frame_password_card)
+        password_card.pack(pady=(0, 10))
+        Button(win_pay_credit.root, text="Оплатить", font=("", 10), command=lambda:self.check_pay_credit(win_return_credit, win_pay_credit, number_card, password_card)).pack()
+        win_pay_credit.focus()
+        
+    def check_pay_credit(self, win_return_credit=Child_window, win_pay_credit=Child_window, number_card=Entry, password_card=Entry):
+        print(number_card.get())
+        if number_card.get() == "" or password_card.get() == "":
+            messagebox.showwarning("Предупреждение", "Пустые поля!")
+        else:
+            try:
+                self.database = sqlite3.connect("clients.db")
+                self.cursor = self.database.cursor()
+                self.card_database = sqlite3.connect("cards.db")
+                self.card_cursor = self.card_database.cursor()
+                self.credittime_money_db = sqlite3.connect("creditTime.db")
+                self.creditTime_cursor = self.credittime_money_db.cursor()
+                if not self.is_number(number_card.get()) or not self.is_int(number_card.get()) or not self.is_number(password_card.get()) or not self.is_int(password_card.get()):
+                    messagebox.showwarning("Предупреждение", "Не корректные данные")
+                else:
+                    self.card_cursor.execute("SELECT number_card FROM users_cards WHERE number_card = ?", [int(number_card.get())])
+                    if self.card_cursor.fetchone() is None:
+                        messagebox.showerror("Предупреждение", "Такого номера карыт нет!")
+                    else:
+                        self.card_cursor.execute("SELECT password FROM users_cards WHERE number_card = ? AND password = ?", [int(number_card.get()), int(password_card.get())])
+                        if self.card_cursor.fetchone() is None:
+                            messagebox.showerror("Предупреждение", "Не верный пароль")
+                        else:
+                            balanse = self.card_cursor.execute(
+                                "SELECT balanse FROM users_cards WHERE number_card = ? AND password = ?", [int(number_card.get()), int(password_card.get())]
+                            ).fetchone()[0]
+                            total_sum_credit = self.user.get_credit() + self.user.get_sum_use_credit()
+                            if balanse >= total_sum_credit:
+                                print(total_sum_credit)
+                                self.card_cursor.execute("UPDATE users_cards SET balanse = balanse - ? WHERE number_card = ?", [float(total_sum_credit), int(number_card.get())])
+                                self.creditTime_cursor.execute("UPDATE creditTime SET balanse = balanse + ? WHERE login = ?", [total_sum_credit, "admin"])
+                                self.cursor.execute("UPDATE users SET credit = ? WHERE id = ?", [0, self.user.get_id()])
+                                self.cursor.execute("UPDATE users SET sum_use_credit = ? WHERE id = ?", [0, self.user.get_id()])
+                                self.cursor.execute("UPDATE users SET credit_days = ? WHERE id = ?", ["0", self.user.get_id()])
+                                self.cursor.execute("UPDATE users SET regular_client = ? WHERE id = ?", [1, self.user.get_id()])
+                                self.card_database.commit()
+                                self.credittime_money_db.commit()
+                                self.database.commit()
+                                self.user.set_credit(0.0)
+                                self.user.set_sum_use_credit(0.0)
+                                self.user.set_credit_days(0)
+                                self.user.set_regula_client(1)
+                                if messagebox.showinfo("Успех", "Вы успешно вернули свой кредит!"):
+                                    self.simple_close_window(win_return_credit)
+                                    self.simple_close_window(win_pay_credit)         
+                            else:
+                                messagebox.showerror("Средства", "Не карте не достаточно средств для оплаты кредита!")
+                                return
+                                           
+            except sqlite3.Error as er:
+                print(er.with_traceback())
+                messagebox.showerror("Ошибка!", "При работе с базой данный случилась не предвиденная ошибка!")
+            finally:
+                self.cursor.close()
+                self.database.close()
+                self.card_cursor.close()
+                self.card_database.close()
+                self.creditTime_cursor.close()
+                self.credittime_money_db.close()
+     
     # TODO: User Profile ========================================================================================================================
     def profile(self, client_area_window=Child_window):
         client_area_window.root.withdraw()
@@ -762,8 +843,8 @@ class Company:
                         messagebox.showinfo("Успех", "Поздравляю вы зарегистрировались!")
                         self.card_database = sqlite3.connect("cards.db")
                         self.card_cursor = self.card_database.cursor()
-                        id = self.cursor.execute(f"SELECT id FROM users WHERE email = ?", [email.get()]).fetchone()[0]
-                        self.card_cursor.execute(f"INSERT INTO users_cards(number_card) VALUES(?)", [id])
+                        id = self.cursor.execute("SELECT id FROM users WHERE email = ?", [email.get()]).fetchone()[0]
+                        self.card_cursor.execute("INSERT INTO users_cards(number_card, password, balanse) VALUES(?, ?, ?)", [id, randint(1000, 10000), randint(2000, 30000)])
                         self.clear(fname, lname, email, password, repeat_password, phone, age)
                         self.card_database.commit()
                         self.card_cursor.close()
