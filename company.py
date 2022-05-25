@@ -176,7 +176,7 @@ class Company:
         finally:
             self.cursor.close()
             self.database.close()
-        self.window.root.withdraw()  #! Когда будем выходить из аккаунта не забыть включить главное окно
+        self.window.root.withdraw()
         client_area_window = Child_window(self.window.root, "Пользовательский кабинет", 500, 500, 800, 250, "icon/user_profile.ico")
         client_area_window.root.protocol(
             "WM_DELETE_WINDOW",
@@ -274,7 +274,6 @@ class Company:
                             ).fetchone()[0]
                             total_sum_credit = self.user.get_credit() + self.user.get_sum_use_credit()
                             if balanse >= total_sum_credit:
-                                print(total_sum_credit)
                                 self.card_cursor.execute("UPDATE users_cards SET balanse = balanse - ? WHERE number_card = ?", [float(total_sum_credit), int(number_card.get())])
                                 self.creditTime_cursor.execute("UPDATE creditTime SET balanse = balanse + ? WHERE login = ?", [total_sum_credit, "admin"])
                                 self.cursor.execute("UPDATE users SET credit = ? WHERE id = ?", [0, self.user.get_id()])
@@ -306,7 +305,6 @@ class Company:
                 self.creditTime_cursor.close()
                 self.credittime_money_db.close()
      
-    # TODO: User Profile ========================================================================================================================
     def profile(self, client_area_window=Child_window):
         client_area_window.root.withdraw()
         profile = Child_window(client_area_window.root, "Пользовательский кабинет", 500, 500, 800, 250, "icon/user_profile.ico")
@@ -517,7 +515,6 @@ class Company:
         except ValueError:
             return False
 
-    # TODO::+=======================================================
     def apply_for_credit(self, client_area_window=Child_window):
         aplly_credit = Child_window(client_area_window.root, "Оформление кредита", 500, 500, 800, 250, "icon/apply_credit.ico")
         aplly_credit.root.protocol(
