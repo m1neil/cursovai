@@ -197,10 +197,10 @@ class Company:
         exit_account = Frame(client_area_window.root)
         exit_account.pack()
         Label(main_title_frame, text="Личный кабинет", relief=RAISED, bd=3, font=("", 18), padx=30).pack(side=LEFT, pady=(30, 35))  # Заголовок
-        Button(user_profile_frame, text="Профиль", font=("", 12), command=lambda: self.profile(client_area_window)).pack(side=LEFT, pady=(0, 5))
-        Button(credit_frame, text="Кредитный отдел", command=lambda: self.apply_for_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
-        Button(return_credit, text="Вернуть кредит", command=lambda: self.return_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
-        Button(exit_account, text="Выйти из приложения", command=lambda:self.exit(client_area_window, "Закрыть приложение?"), font=("", 12)).pack(side=LEFT)
+        Button(user_profile_frame, text="Профиль", width=18, font=("", 12), command=lambda: self.profile(client_area_window)).pack(side=LEFT, pady=(0, 5))
+        Button(credit_frame, text="Кредитный отдел", width=18, command=lambda: self.apply_for_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
+        Button(return_credit, text="Вернуть кредит", width=18, command=lambda: self.return_credit(client_area_window), font=("", 12)).pack(side=LEFT, pady=(0, 5))
+        Button(exit_account, text="Выйти из приложения", width=18, command=lambda:self.exit(client_area_window, "Закрыть приложение?"), font=("", 12)).pack(side=LEFT)
     
     # Return credit
     def return_credit(self, client_area_window=Child_window):
@@ -736,7 +736,7 @@ class Company:
             relx=0.33, rely=0.58, anchor=CENTER
         )
         title = "Закрыть окно регистрации"
-        question = "Отменить регистрацию и вернуться в меню?"
+        question = "Вернуться в меню?"
         Button(
             regis.root,
             text="Вернуться в меню",
